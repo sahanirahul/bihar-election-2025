@@ -1,7 +1,9 @@
 // API Configuration
-// Change this to your backend URL after deployment
-const API_BASE_URL = 'http://localhost:3000' // Development
-// const API_BASE_URL = 'https://your-backend-url.com';  // Production - UPDATE THIS!
+// Automatically detects the correct URL based on environment
+
+const API_BASE_URL = window.location.hostname === 'localhost' 
+    ? 'http://localhost:3000'  // Local development
+    : window.location.origin;   // Production (Render.com) - uses same URL as frontend
 
 const API_ENDPOINTS = {
     getAllPredictions: `${API_BASE_URL}/api/predictions`,

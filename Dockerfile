@@ -15,7 +15,7 @@ COPY backend/ ./backend/
 
 # Copy frontend files
 COPY index.html ./
-COPY config-render.js ./config.js
+COPY config.js ./
 COPY *.jpg ./
 
 # Create predictions.json if it doesn't exist
