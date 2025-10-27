@@ -13,9 +13,6 @@ node_modules
 start-dev.sh
 backend/test-api.sh
 
-# Local config (use config-render.js instead)
-config.js
-
 # Deployment files
 DEPLOYMENT.md
 DEPLOYMENT_CHECKLIST.md
