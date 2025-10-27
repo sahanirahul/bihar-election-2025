@@ -11,7 +11,7 @@ All notable changes to the Bihar Election Calculator project.
    - Replace grid view with dropdown selector
    - Scalable for 100+ predictions
    - Clean, organized interface
-   - Shows prediction summary in dropdown (e.g., "Rahul (30% NDA, 20% MGB, 50% Others)")
+   - Shows prediction summary in dropdown (e.g., "User1 (30% NDA, 20% MGB, 50% Others)")
 
 2. **Average Prediction**
    - Automatically calculates average from all predictions

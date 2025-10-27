@@ -18,7 +18,7 @@ Perfect for your 20-day YouTube experiment. **$0 cost, no credit card needed.**
 
 ```bash
 # Navigate to project
-cd /Users/rahulsahani/Desktop/AllData/projects/biharelection_results
+cd /path/to/biharelection_results
 
 # Initialize git
 git init

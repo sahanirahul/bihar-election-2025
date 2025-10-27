@@ -28,7 +28,7 @@ Then visit: `http://localhost:8000`
 ### 3. Test It!
 
 1. Move the sliders to set vote transfer percentages
-2. Enter your name (e.g., "Rahul's prediction")
+2. Enter your name (e.g., "User1's prediction")
 3. Click "Add Prediction"
 4. Your prediction should appear at the bottom!
 5. Refresh the page - your prediction persists!

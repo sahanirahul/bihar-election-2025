@@ -26,7 +26,7 @@ Perfect for your 20-day YouTube experiment! No credit card required.
 ### Step 1: Push Code to GitHub
 
 ```bash
-cd /Users/rahulsahani/Desktop/AllData/projects/biharelection_results
+cd /path/to/biharelection_results
 
 # Initialize git (if not already)
 git init

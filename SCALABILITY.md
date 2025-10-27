@@ -49,7 +49,7 @@ Your app is now ready to handle **millions of predictions** without breaking!
 
 ### User Experience:
 ```
-1. User types "Rahul" in search box
+1. User types "User1" in search box
 2. Wait 500ms (debounce)
 3. API call: GET /api/predictions?search=rahul&limit=100
 4. Returns matching predictions
@@ -183,9 +183,9 @@ Showing 5 of 5 predictions (1,234 total in database)
 
 👤 Select from Results:
 [-- Choose a prediction --    ▼]
-  Rahul's Prediction
-  Rahul Kumar
-  Rahul Singh
+  User1's Prediction
+  User1 Kumar
+  User1 Singh
   ...
 ```
 

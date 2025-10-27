@@ -105,7 +105,7 @@ biharelection_results/
   "predictions": [
     {
       "id": 1698765432100,
-      "name": "Rahul's Prediction",
+      "name": "User1's Prediction",
       "nda": 30,
       "mgb": 20,
       "others": 50,
