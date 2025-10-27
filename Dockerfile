@@ -1,0 +1,30 @@
+# Dockerfile for Bihar Election Calculator
+# Serves both frontend and backend together in one container
+
+FROM node:18-alpine
+
+# Create app directory
+WORKDIR /app
+
+# Copy backend package files
+COPY backend/package*.json ./backend/
+RUN cd backend && npm install --production
+
+# Copy all backend files
+COPY backend/ ./backend/
+
+# Copy frontend files
+COPY index.html ./
+COPY config-render.js ./config.js
+COPY *.jpg ./
+
+# Create predictions.json if it doesn't exist
+RUN touch ./backend/predictions.json && \
+    echo '{"predictions":[]}' > ./backend/predictions.json
+
+# Expose port (Render will set PORT env variable)
+EXPOSE 3000
+
+# Start the combined server
+CMD ["node", "backend/server-combined.js"]
+

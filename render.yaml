@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: bihar-election-calculator
+    env: docker
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+

@@ -1,0 +1,39 @@
+# Git
+.git
+.gitignore
+
+# Documentation
+*.md
+!README.md
+
+# Node modules (will be installed in container)
+node_modules
+
+# Scripts
+start-dev.sh
+backend/test-api.sh
+
+# Local config (use config-render.js instead)
+config.js
+
+# Deployment files
+DEPLOYMENT.md
+DEPLOYMENT_CHECKLIST.md
+QUICKSTART.md
+PROJECT_SUMMARY.md
+CHANGELOG.md
+DROPDOWN_FEATURE.md
+
+# IDE
+.vscode
+.idea
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.log
+*.tmp
+

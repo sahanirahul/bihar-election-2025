@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bihar Election 2025 - JSP Vote Impact Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 15px;
+            padding: 15px 20px;
+        }
+
+        header h1 {
+            font-size: 1.8em;
+            margin-bottom: 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header h1 small {
+            font-size: 0.5em;
+            opacity: 0.85;
+            font-weight: normal;
+            margin-left: 10px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .scenario-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .scenario-card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+        }
+
+        .scenario-card h3 {
+            text-align: center;
+            margin-bottom: 12px;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 1em;
+        }
+
+        .scenario-party-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px;
+            margin-bottom: 6px;
+            border-radius: 5px;
+            background: #f8f9fa;
+            font-size: 0.85em;
+        }
+
+        .scenario-card .party-logo {
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .scenario-result-box {
+            margin-top: 12px;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .scenario-result-box .label {
+            font-size: 0.75em;
+            margin-bottom: 4px;
+        }
+
+        .scenario-result-box .main-value {
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        .scenario-result-box .breakdown {
+            font-size: 0.75em;
+            margin-top: 6px;
+        }
+
+        .scenario-result-box .breakdown div {
+            margin-bottom: 2px;
+        }
+
+        .add-prediction-box {
+            padding: 18px;
+            background: #f0f4ff;
+            border-radius: 10px;
+            border: 2px dashed #667eea;
+        }
+
+        .add-prediction-box h3 {
+            color: #667eea;
+            margin-bottom: 12px;
+            font-size: 1em;
+            text-align: center;
+        }
+
+        .prediction-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .prediction-input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+        }
+
+        .prediction-input-group input:focus {
+            outline: none;
+            border-color: #764ba2;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .add-prediction-btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            width: 100%;
+        }
+
+        .add-prediction-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .add-prediction-btn:active {
+            transform: translateY(0);
+        }
+
+        .custom-predictions-container {
+            margin-top: 30px;
+        }
+
+        .custom-prediction-card {
+            position: relative;
+        }
+
+        .delete-prediction-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            line-height: 1;
+            transition: background 0.2s ease;
+        }
+
+        .delete-prediction-btn:hover {
+            background: #c82333;
+        }
+
+        .custom h3 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 12px;
+            font-size: 1.1em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 8px;
+        }
+
+        .party-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            margin-bottom: 6px;
+            border-radius: 6px;
+            background: #f8f9fa;
+        }
+
+        .party-name {
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        .party-stats {
+            text-align: right;
+        }
+
+        .vote-share {
+            font-size: 1.05em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .seats {
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 2px;
+        }
+
+        .nda { border-left: 5px solid #FF9933; }
+        .mgb { border-left: 5px solid #138808; }
+        .others { border-left: 5px solid #999999; }
+        .jsp { border-left: 5px solid #FFD700; }
+
+        .party-logo {
+            width: 32px;
+            height: 32px;
+            margin-right: 8px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .party-name-with-logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .controls {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 30px;
+            align-items: start;
+        }
+
+        .controls-left {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .controls h2 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+
+        .controls p {
+            font-size: 0.95em;
+            color: #666;
+            margin-bottom: 0;
+            line-height: 1.5;
+        }
+
+        .controls-right {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .control-group {
+            margin-bottom: 0;
+        }
+
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        .control-value {
+            color: #667eea;
+            font-size: 1.1em;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #ddd;
+            outline: none;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            background: #764ba2;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            border: none;
+        }
+
+        .change-indicator {
+            font-size: 0.75em;
+            margin-top: 3px;
+            font-weight: 600;
+        }
+
+        .change-negative {
+            color: #dc3545;
+        }
+
+        .change-positive {
+            color: #28a745;
+        }
+
+        .winner-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.65em;
+            font-weight: bold;
+            margin-left: 6px;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(240, 147, 251, 0.7);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 10px rgba(240, 147, 251, 0);
+            }
+        }
+
+        .winner-row {
+            background: linear-gradient(90deg, rgba(240, 147, 251, 0.1) 0%, rgba(245, 87, 108, 0.1) 100%) !important;
+            border: 2px solid #f093fb !important;
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% {
+                box-shadow: 0 0 5px rgba(240, 147, 251, 0.5);
+            }
+            50% {
+                box-shadow: 0 0 20px rgba(240, 147, 251, 0.8);
+            }
+        }
+
+        .winner-row .vote-share {
+            font-size: 1.2em !important;
+            font-weight: bold;
+        }
+
+        .total-votes {
+            text-align: center;
+            padding: 10px;
+            background: #fff3cd;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 1100px) {
+            .controls {
+                grid-template-columns: 1fr;
+            }
+
+            .controls-left {
+                margin-bottom: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.5em;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .scenario-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🗳️ Bihar Election 2025 Prediction Calculator <small>(JSP Impact Analysis)</small></h1>
+        </header>
+
+        <!-- First Layer: 2020 and 2025 Results Side by Side -->
+        <div class="grid">
+            <!-- 2020 Results Card -->
+            <div class="card">
+                <h2>📊 2020 Election Results (Adjusted for 2025 Alliances)</h2>
+                <div class="party-row nda">
+                    <div class="party-name-with-logo">
+                        <div class="party-logo"><img src="nda.jpg" alt="NDA Logo" style="width:100%;height:100%;object-fit:contain;"></div>
+                        <div class="party-name">NDA</div>
+                    </div>
+                    <div class="party-stats">
+                        <div class="vote-share" id="base-nda-votes">41.40%</div>
+                        <div class="seats">125 Seats</div>
+                    </div>
+                </div>
+                <div class="party-row mgb">
+                    <div class="party-name-with-logo">
+                        <div class="party-logo"><img src="mgb.jpg" alt="MGB Logo" style="width:100%;height:100%;object-fit:contain;"></div>
+                        <div class="party-name">Mahagathbandan</div>
+                    </div>
+                    <div class="party-stats">
+                        <div class="vote-share" id="base-mgb-votes">38.75%</div>
+                        <div class="seats">110 Seats</div>
+                    </div>
+                </div>
+                <div class="party-row others">
+                    <div class="party-name-with-logo">
+                        <div class="party-logo"><img src="other.jpg" alt="Others Logo" style="width:100%;height:100%;object-fit:contain;"></div>
+                        <div class="party-name">Others</div>
+                    </div>
+                    <div class="party-stats">
+                        <div class="vote-share" id="base-others-votes">19.85%</div>
+                        <div class="seats">8 Seats</div>
+                    </div>
+                </div>
+                <div class="total-votes">
+                    Total: 100% | 243 Seats
+                </div>
+                <div style="margin-top: 8px; padding: 8px; background: #fff3cd; border-radius: 6px; font-size: 0.75em; color: #856404; line-height: 1.6;">
+                    <strong>⚠️ Adjustments:</strong><br>
+                    LJP (5.66%) Others→NDA<br>
+                    VIP (1.52%) NDA→MGB
+                </div>
+            </div>
+
+            <!-- 2025 Predictions Card -->
+            <div class="card">
+                <h2>🔮 2025 Predictions (With JSP)</h2>
+                <div class="party-row nda" id="nda-row">
+                    <div class="party-name-with-logo">
+                        <div class="party-logo"><img src="nda.jpg" alt="NDA Logo" style="width:100%;height:100%;object-fit:contain;"></div>
+                        <div class="party-name">NDA<span id="nda-winner-badge"></span></div>
+                    </div>
+                    <div class="party-stats">
+                        <div class="vote-share" id="new-nda-votes">41.40%</div>
+                        <div class="change-indicator change-negative" id="nda-change">-0.00%</div>
+                    </div>
+                </div>
+                <div class="party-row mgb" id="mgb-row">
+                    <div class="party-name-with-logo">
+                        <div class="party-logo"><img src="mgb.jpg" alt="MGB Logo" style="width:100%;height:100%;object-fit:contain;"></div>
+                        <div class="party-name">Mahagathbandan<span id="mgb-winner-badge"></span></div>
+                    </div>
+                    <div class="party-stats">
+                        <div class="vote-share" id="new-mgb-votes">38.75%</div>
+                        <div class="change-indicator change-negative" id="mgb-change">-0.00%</div>
+                    </div>
+                </div>
+                <div class="party-row others" id="others-row">
+                    <div class="party-name-with-logo">
+                        <div class="party-logo"><img src="other.jpg" alt="Others Logo" style="width:100%;height:100%;object-fit:contain;"></div>
+                        <div class="party-name">Others<span id="others-winner-badge"></span></div>
+                    </div>
+                    <div class="party-stats">
+                        <div class="vote-share" id="new-others-votes">19.85%</div>
+                        <div class="change-indicator change-negative" id="others-change">-0.00%</div>
+                    </div>
+                </div>
+                <div class="party-row jsp" id="jsp-row">
+                    <div class="party-name-with-logo">
+                        <div class="party-logo"><img src="jsp.jpg" alt="JSP Logo" style="width:100%;height:100%;object-fit:contain;"></div>
+                        <div class="party-name">Jan Suraaj Party<span id="jsp-winner-badge"></span></div>
+                    </div>
+                    <div class="party-stats">
+                        <div class="vote-share" id="new-jsp-votes">0.00%</div>
+                        <div class="change-indicator change-positive" id="jsp-change">NEW</div>
+                    </div>
+                </div>
+                <div class="total-votes" id="total-display">
+                    Total: 100.00%
+                </div>
+            </div>
+        </div>
+
+        <!-- Second Layer: Controls (Two Columns) -->
+        <div class="controls" style="margin-bottom: 20px;">
+            <!-- Left Column: Heading & Add Prediction -->
+            <div class="controls-left">
+                <div>
+                    <h2>⚙️ Adjust JSP Vote Transfer</h2>
+                    <p>Set what percentage of votes JSP will take from each party</p>
+                </div>
+                
+                <!-- Add Custom Prediction -->
+                <div class="add-prediction-box">
+                    <h3>💾 Save Your Prediction</h3>
+                    <div class="prediction-input-group">
+                        <input type="text" id="prediction-name" placeholder="Enter name (e.g., Rahul's prediction)" maxlength="30">
+                        <button class="add-prediction-btn" onclick="addCustomPrediction()">Add Prediction</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Sliders -->
+            <div class="controls-right">
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Votes from NDA → JSP</span>
+                        <span class="control-value"><span id="nda-percent">0</span>%</span>
+                    </div>
+                    <input type="range" id="nda-slider" min="0" max="100" value="0" step="1">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Votes from MGB → JSP</span>
+                        <span class="control-value"><span id="mgb-percent">0</span>%</span>
+                    </div>
+                    <input type="range" id="mgb-slider" min="0" max="100" value="0" step="1">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-label">
+                        <span>Votes from Others → JSP</span>
+                        <span class="control-value"><span id="others-percent">0</span>%</span>
+                    </div>
+                    <input type="range" id="others-slider" min="0" max="100" value="0" step="1">
+                </div>
+            </div>
+        </div>
+
+        <!-- Custom Predictions -->
+        <!-- Prediction Selector Section -->
+        <div id="prediction-selector-section" style="display: none; margin-top: 30px;">
+            <h2 style="text-align: center; color: white; margin: 0 0 20px 0; font-size: 1.5em; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
+                👥 Community Predictions
+            </h2>
+            
+            <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.15); max-width: 600px; margin: 0 auto;">
+                <div style="margin-bottom: 20px;">
+                    <label for="prediction-selector" style="display: block; font-weight: 600; margin-bottom: 10px; color: #667eea; font-size: 1.1em;">
+                        📊 Select a Prediction to View:
+                    </label>
+                    <select id="prediction-selector" style="width: 100%; padding: 12px; font-size: 1em; border: 2px solid #667eea; border-radius: 8px; background: white; cursor: pointer; font-family: inherit;">
+                        <option value="">-- Choose a prediction --</option>
+                    </select>
+                    <div style="margin-top: 8px; font-size: 0.85em; color: #666; text-align: center;">
+                        <span id="total-predictions-count">0</span> predictions available
+                    </div>
+                </div>
+
+                <!-- Selected Prediction Display -->
+                <div id="selected-prediction-display" style="display: none;">
+                    <!-- Content will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script>
+        /*
+         * Bihar Election 2025 - JSP Impact Calculator
+         * 
+         * This calculator uses actual party logos:
+         *    - nda.jpg: NDA (Lotus - BJP-led alliance)
+         *    - mgb.jpg: Mahagathbandan (Hand - Congress + RJD)
+         *    - jsp.jpg: Jan Suraaj Party (School Bag - Prashant Kishor)
+         *    - other.jpg: Others
+         * 
+         * To change logos, simply replace the .jpg files with your own images.
+         */
+
+        // Base 2020 vote shares (adjusted for 2025 alliance changes)
+        // LJP (5.66%) moved from Others to NDA
+        // VIP (1.52%) moved from NDA to MGB
+        const baseVotes = {
+            nda: 41.40,    // 37.26 + 5.66 (LJP) - 1.52 (VIP)
+            mgb: 38.75,    // 37.23 + 1.52 (VIP)
+            others: 19.85  // 100 - 41.40 - 38.75
+        };
+
+        // Get slider elements
+        const ndaSlider = document.getElementById('nda-slider');
+        const mgbSlider = document.getElementById('mgb-slider');
+        const othersSlider = document.getElementById('others-slider');
+
+        // Get display elements
+        const ndaPercent = document.getElementById('nda-percent');
+        const mgbPercent = document.getElementById('mgb-percent');
+        const othersPercent = document.getElementById('others-percent');
+
+        // Calculate and update results
+        function calculateResults() {
+            // Get percentages from sliders (as decimals)
+            const ndaTransfer = ndaSlider.value / 100;
+            const mgbTransfer = mgbSlider.value / 100;
+            const othersTransfer = othersSlider.value / 100;
+
+            // Update slider displays
+            ndaPercent.textContent = ndaSlider.value;
+            mgbPercent.textContent = mgbSlider.value;
+            othersPercent.textContent = othersSlider.value;
+
+            // Calculate new vote shares
+            const newNDA = baseVotes.nda * (1 - ndaTransfer);
+            const newMGB = baseVotes.mgb * (1 - mgbTransfer);
+            const newOthers = baseVotes.others * (1 - othersTransfer);
+            
+            // JSP gets votes from all parties
+            const newJSP = (baseVotes.nda * ndaTransfer) + 
+                          (baseVotes.mgb * mgbTransfer) + 
+                          (baseVotes.others * othersTransfer);
+
+            // Calculate changes
+            const ndaChange = newNDA - baseVotes.nda;
+            const mgbChange = newMGB - baseVotes.mgb;
+            const othersChange = newOthers - baseVotes.others;
+
+            // Update display
+            document.getElementById('new-nda-votes').textContent = newNDA.toFixed(2) + '%';
+            document.getElementById('new-mgb-votes').textContent = newMGB.toFixed(2) + '%';
+            document.getElementById('new-others-votes').textContent = newOthers.toFixed(2) + '%';
+            document.getElementById('new-jsp-votes').textContent = newJSP.toFixed(2) + '%';
+
+            // Update change indicators
+            document.getElementById('nda-change').textContent = 
+                (ndaChange >= 0 ? '+' : '') + ndaChange.toFixed(2) + '%';
+            document.getElementById('mgb-change').textContent = 
+                (mgbChange >= 0 ? '+' : '') + mgbChange.toFixed(2) + '%';
+            document.getElementById('others-change').textContent = 
+                (othersChange >= 0 ? '+' : '') + othersChange.toFixed(2) + '%';
+            document.getElementById('jsp-change').textContent = 
+                '+' + newJSP.toFixed(2) + '%';
+
+            // Update total
+            const total = newNDA + newMGB + newOthers + newJSP;
+            document.getElementById('total-display').textContent = 
+                `Total: ${total.toFixed(2)}%`;
+
+            // Determine and highlight winner
+            highlightWinner(newNDA, newMGB, newOthers, newJSP);
+        }
+
+        // Determine and highlight the winner
+        function highlightWinner(nda, mgb, others, jsp) {
+            // Create array of parties with their vote shares
+            const parties = [
+                { name: 'nda', votes: nda },
+                { name: 'mgb', votes: mgb },
+                { name: 'others', votes: others },
+                { name: 'jsp', votes: jsp }
+            ];
+
+            // Find the party with highest vote share
+            const winner = parties.reduce((max, party) => 
+                party.votes > max.votes ? party : max
+            );
+
+            // Remove winner class and badges from all parties
+            ['nda', 'mgb', 'others', 'jsp'].forEach(party => {
+                const row = document.getElementById(party + '-row');
+                const badge = document.getElementById(party + '-winner-badge');
+                row.classList.remove('winner-row');
+                badge.innerHTML = '';
+            });
+
+            // Add winner class and badge to the winning party
+            const winnerRow = document.getElementById(winner.name + '-row');
+            const winnerBadge = document.getElementById(winner.name + '-winner-badge');
+            winnerRow.classList.add('winner-row');
+            winnerBadge.innerHTML = '<span class="winner-badge">🏆 LEADING</span>';
+        }
+
+        // Add event listeners to sliders
+        ndaSlider.addEventListener('input', calculateResults);
+        mgbSlider.addEventListener('input', calculateResults);
+        othersSlider.addEventListener('input', calculateResults);
+
+        // Initialize with default values
+        calculateResults();
+
+        // ============================================
+        // Custom Predictions Management with Backend API
+        // ============================================
+        
+        let customPredictions = [];
+        let userPredictionCount = 0;
+        const MAX_PREDICTIONS = 3;
+
+        async function loadPredictionCount() {
+            try {
+                const response = await fetch(API_ENDPOINTS.getPredictionCount);
+                const data = await response.json();
+                userPredictionCount = data.count;
+                updatePredictionButton();
+            } catch (error) {
+                console.error('Error loading prediction count:', error);
+            }
+        }
+
+        function updatePredictionButton() {
+            const button = document.querySelector('.add-prediction-btn');
+            const remaining = MAX_PREDICTIONS - userPredictionCount;
+            if (remaining <= 0) {
+                button.disabled = true;
+                button.textContent = `Max ${MAX_PREDICTIONS} Predictions Reached`;
+                button.style.opacity = '0.6';
+                button.style.cursor = 'not-allowed';
+            } else {
+                button.disabled = false;
+                button.textContent = `Add Prediction (${remaining} remaining)`;
+                button.style.opacity = '1';
+                button.style.cursor = 'pointer';
+            }
+        }
+
+        async function addCustomPrediction() {
+            const nameInput = document.getElementById('prediction-name');
+            const name = nameInput.value.trim();
+
+            // Validate input
+            if (!name) {
+                alert('Please enter a name for your prediction!');
+                return;
+            }
+
+            // Get current slider values
+            const ndaTransfer = parseInt(ndaSlider.value);
+            const mgbTransfer = parseInt(mgbSlider.value);
+            const othersTransfer = parseInt(othersSlider.value);
+
+            // Check if at least one slider is moved
+            if (ndaTransfer === 0 && mgbTransfer === 0 && othersTransfer === 0) {
+                alert('Please adjust at least one slider before adding a prediction!');
+                return;
+            }
+
+            // Check local limit
+            if (userPredictionCount >= MAX_PREDICTIONS) {
+                alert(`You can only add ${MAX_PREDICTIONS} predictions!`);
+                return;
+            }
+
+            // Disable button during submission
+            const button = document.querySelector('.add-prediction-btn');
+            const originalText = button.textContent;
+            button.disabled = true;
+            button.textContent = 'Adding...';
+
+            try {
+                // Send to backend
+                const response = await fetch(API_ENDPOINTS.addPrediction, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: name,
+                        nda: ndaTransfer,
+                        mgb: mgbTransfer,
+                        others: othersTransfer
+                    })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Failed to add prediction');
+                }
+
+                const data = await response.json();
+                
+                // Update local count
+                userPredictionCount++;
+                updatePredictionButton();
+
+                // Clear input
+                nameInput.value = '';
+
+                // Reload all predictions
+                await loadAllPredictions();
+
+                alert('Prediction added successfully!');
+            } catch (error) {
+                console.error('Error adding prediction:', error);
+                alert(error.message || 'Failed to add prediction. Please try again.');
+                button.disabled = false;
+                button.textContent = originalText;
+            }
+        }
+
+        async function deleteCustomPrediction(id) {
+            if (!confirm('Are you sure you want to delete this prediction?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(API_ENDPOINTS.deletePrediction(id), {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Failed to delete prediction');
+                }
+
+                // Update local count
+                userPredictionCount--;
+                updatePredictionButton();
+
+                // Reload predictions
+                await loadAllPredictions();
+
+                alert('Prediction deleted successfully!');
+            } catch (error) {
+                console.error('Error deleting prediction:', error);
+                alert(error.message || 'Failed to delete prediction. Please try again.');
+            }
+        }
+
+        // Calculate average prediction from all predictions
+        function calculateAveragePrediction() {
+            if (customPredictions.length === 0) {
+                return null;
+            }
+
+            let totalNDA = 0, totalMGB = 0, totalOthers = 0;
+            
+            customPredictions.forEach(pred => {
+                totalNDA += pred.nda;
+                totalMGB += pred.mgb;
+                totalOthers += pred.others;
+            });
+
+            return {
+                id: 'average',
+                name: '📊 Average Prediction',
+                nda: Math.round(totalNDA / customPredictions.length),
+                mgb: Math.round(totalMGB / customPredictions.length),
+                others: Math.round(totalOthers / customPredictions.length)
+            };
+        }
+
+        // Calculate results for a prediction
+        function calculatePredictionResults(pred) {
+            const ndaTransfer = pred.nda / 100;
+            const mgbTransfer = pred.mgb / 100;
+            const othersTransfer = pred.others / 100;
+
+            const newNDA = baseVotes.nda * (1 - ndaTransfer);
+            const newMGB = baseVotes.mgb * (1 - mgbTransfer);
+            const newOthers = baseVotes.others * (1 - othersTransfer);
+            const newJSP = (baseVotes.nda * ndaTransfer) + 
+                          (baseVotes.mgb * mgbTransfer) + 
+                          (baseVotes.others * othersTransfer);
+
+            // Find winner
+            const parties = [
+                { name: 'NDA', votes: newNDA },
+                { name: 'MGB', votes: newMGB },
+                { name: 'Others', votes: newOthers },
+                { name: 'JSP', votes: newJSP }
+            ];
+            const winner = parties.reduce((max, party) => 
+                party.votes > max.votes ? party : max
+            );
+
+            return { newNDA, newMGB, newOthers, newJSP, winner };
+        }
+
+        // Populate dropdown with all predictions
+        function renderCustomPredictions() {
+            const selector = document.getElementById('prediction-selector');
+            const section = document.getElementById('prediction-selector-section');
+            const countDisplay = document.getElementById('total-predictions-count');
+
+            // Show/hide section
+            if (customPredictions.length === 0) {
+                section.style.display = 'none';
+                return;
+            }
+            section.style.display = 'block';
+
+            // Update count
+            countDisplay.textContent = customPredictions.length;
+
+            // Clear and rebuild dropdown options
+            selector.innerHTML = '<option value="">-- Choose a prediction --</option>';
+
+            // Add average prediction first
+            const avgPred = calculateAveragePrediction();
+            if (avgPred) {
+                const avgOption = document.createElement('option');
+                avgOption.value = 'average';
+                avgOption.textContent = avgPred.name;
+                avgOption.style.fontWeight = 'bold';
+                avgOption.style.background = '#f0f4ff';
+                selector.appendChild(avgOption);
+
+                // Add separator
+                const separator = document.createElement('option');
+                separator.disabled = true;
+                separator.textContent = '─────────────────────────────';
+                selector.appendChild(separator);
+            }
+
+            // Add individual predictions
+            customPredictions.forEach(pred => {
+                const option = document.createElement('option');
+                option.value = pred.id;
+                option.textContent = pred.name;
+                selector.appendChild(option);
+            });
+        }
+
+        // Display selected prediction
+        function displaySelectedPrediction(predictionId) {
+            const display = document.getElementById('selected-prediction-display');
+            
+            if (!predictionId) {
+                display.style.display = 'none';
+                return;
+            }
+
+            let prediction;
+            if (predictionId === 'average') {
+                prediction = calculateAveragePrediction();
+            } else {
+                prediction = customPredictions.find(p => p.id == predictionId);
+            }
+
+            if (!prediction) {
+                display.style.display = 'none';
+                return;
+            }
+
+            const results = calculatePredictionResults(prediction);
+            const { newNDA, newMGB, newOthers, newJSP, winner } = results;
+
+            // Style winner rows
+            const ndaStyle = winner.name === 'NDA' ? 'font-weight: bold; color: #f093fb;' : '';
+            const mgbStyle = winner.name === 'MGB' ? 'font-weight: bold; color: #f093fb;' : '';
+            const othersStyle = winner.name === 'Others' ? 'font-weight: bold; color: #f093fb;' : '';
+            const jspStyle = winner.name === 'JSP' ? 'font-weight: bold; color: #f093fb;' : 'color: #5f3dc4;';
+            
+            const winnerBadge = '<span style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 3px 8px; border-radius: 8px; font-size: 0.75em; margin-left: 6px; font-weight: bold;">🏆 WINNER</span>';
+
+            display.innerHTML = `
+                <div style="border-top: 2px solid #667eea; padding-top: 20px;">
+                    <h3 style="color: #667eea; margin-bottom: 15px; text-align: center; font-size: 1.2em;">
+                        ${prediction.id === 'average' ? '📊' : '👤'} ${prediction.name}
+                    </h3>
+                    
+                    <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 15px;">
+                        <div style="font-size: 0.9em; color: #667eea; font-weight: 600; margin-bottom: 8px; text-align: center;">
+                            JSP takes votes from:
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; text-align: center;">
+                            <div>
+                                <div style="font-size: 0.8em; color: #666;">NDA</div>
+                                <div style="font-size: 1.3em; font-weight: bold; color: #FF9933;">${prediction.nda}%</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.8em; color: #666;">MGB</div>
+                                <div style="font-size: 1.3em; font-weight: bold; color: #138808;">${prediction.mgb}%</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.8em; color: #666;">Others</div>
+                                <div style="font-size: 1.3em; font-weight: bold; color: #999999;">${prediction.others}%</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="background: #e8f0fe; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                        <div style="text-align: center; margin-bottom: 10px;">
+                            <div style="font-size: 0.85em; color: #667eea; margin-bottom: 5px;">JSP gets:</div>
+                            <div style="${jspStyle} font-size: 1.6em; font-weight: bold;">
+                                ${newJSP.toFixed(2)}%
+                                ${winner.name === 'JSP' ? winnerBadge : ''}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="background: #fff; padding: 15px; border: 2px solid #e0e0e0; border-radius: 8px;">
+                        <div style="font-size: 0.9em; color: #667eea; font-weight: 600; margin-bottom: 12px; text-align: center;">
+                            Final Vote Share (2025):
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <div style="display: flex; justify-content: space-between; padding: 8px; background: #f8f9fa; border-radius: 6px; ${winner.name === 'NDA' ? 'border: 2px solid #f093fb;' : ''}">
+                                <span style="font-weight: 600;">NDA</span>
+                                <span style="${ndaStyle} font-size: 1.1em;">
+                                    ${newNDA.toFixed(2)}%
+                                    ${winner.name === 'NDA' ? winnerBadge : ''}
+                                </span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 8px; background: #f8f9fa; border-radius: 6px; ${winner.name === 'MGB' ? 'border: 2px solid #f093fb;' : ''}">
+                                <span style="font-weight: 600;">MGB</span>
+                                <span style="${mgbStyle} font-size: 1.1em;">
+                                    ${newMGB.toFixed(2)}%
+                                    ${winner.name === 'MGB' ? winnerBadge : ''}
+                                </span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 8px; background: #f8f9fa; border-radius: 6px; ${winner.name === 'Others' ? 'border: 2px solid #f093fb;' : ''}">
+                                <span style="font-weight: 600;">Others</span>
+                                <span style="${othersStyle} font-size: 1.1em;">
+                                    ${newOthers.toFixed(2)}%
+                                    ${winner.name === 'Others' ? winnerBadge : ''}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            display.style.display = 'block';
+        }
+
+        // Handle dropdown selection
+        document.getElementById('prediction-selector').addEventListener('change', function(e) {
+            displaySelectedPrediction(e.target.value);
+        });
+
+        async function loadAllPredictions() {
+            try {
+                const response = await fetch(API_ENDPOINTS.getAllPredictions);
+                const data = await response.json();
+                customPredictions = data.predictions || [];
+                renderCustomPredictions();
+            } catch (error) {
+                console.error('Error loading predictions:', error);
+            }
+        }
+
+        // Allow Enter key to submit prediction
+        document.getElementById('prediction-name').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addCustomPrediction();
+            }
+        });
+
+        // Load predictions and count on page load
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadPredictionCount();
+            await loadAllPredictions();
+        });
+    </script>
+
+</body>
+</html>
+
