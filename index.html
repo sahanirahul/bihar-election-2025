@@ -603,23 +603,51 @@
         </div>
 
         <!-- Custom Predictions -->
-        <!-- Prediction Selector Section -->
+        <!-- Community Predictions Section -->
         <div id="prediction-selector-section" style="display: none; margin-top: 30px;">
             <h2 style="text-align: center; color: white; margin: 0 0 20px 0; font-size: 1.5em; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
                 👥 Community Predictions
             </h2>
             
+            <!-- Average Prediction Tile (Always Visible) -->
+            <div id="average-prediction-tile" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.2); max-width: 600px; margin: 0 auto 30px auto; border: 3px solid #f0f4ff;">
+                <h3 style="color: white; text-align: center; margin-bottom: 15px; font-size: 1.3em; text-shadow: 1px 1px 3px rgba(0,0,0,0.3);">
+                    📊 Average Community Prediction
+                </h3>
+                <div id="average-prediction-content" style="background: white; border-radius: 10px; padding: 20px;">
+                    <!-- Content will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Individual Predictions Dropdown -->
             <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.15); max-width: 600px; margin: 0 auto;">
+                <!-- Search Box -->
+                <div style="margin-bottom: 15px;">
+                    <label for="prediction-search" style="display: block; font-weight: 600; margin-bottom: 8px; color: #667eea; font-size: 1em;">
+                        🔍 Search Predictions by Name:
+                    </label>
+                    <input 
+                        type="text" 
+                        id="prediction-search" 
+                        placeholder="Type to search..." 
+                        style="width: 100%; padding: 10px 12px; font-size: 0.95em; border: 2px solid #e0e0e0; border-radius: 8px; font-family: inherit; transition: border-color 0.2s;"
+                        onfocus="this.style.borderColor='#667eea'"
+                        onblur="this.style.borderColor='#e0e0e0'"
+                    >
+                    <div style="margin-top: 6px; font-size: 0.8em; color: #999;">
+                        Showing <span id="showing-count">0</span> of <span id="filtered-count">0</span> predictions
+                        <span id="total-in-db" style="color: #667eea; font-weight: 600;"></span>
+                    </div>
+                </div>
+
+                <!-- Dropdown -->
                 <div style="margin-bottom: 20px;">
-                    <label for="prediction-selector" style="display: block; font-weight: 600; margin-bottom: 10px; color: #667eea; font-size: 1.1em;">
-                        📊 Select a Prediction to View:
+                    <label for="prediction-selector" style="display: block; font-weight: 600; margin-bottom: 10px; color: #667eea; font-size: 1em;">
+                        👤 Select from Results:
                     </label>
                     <select id="prediction-selector" style="width: 100%; padding: 12px; font-size: 1em; border: 2px solid #667eea; border-radius: 8px; background: white; cursor: pointer; font-family: inherit;">
                         <option value="">-- Choose a prediction --</option>
                     </select>
-                    <div style="margin-top: 8px; font-size: 0.85em; color: #666; text-align: center;">
-                        <span id="total-predictions-count">0</span> predictions available
-                    </div>
                 </div>
 
                 <!-- Selected Prediction Display -->
@@ -758,14 +786,17 @@
         // ============================================
         
         let customPredictions = [];
+        let allPredictionsForAverage = []; // Store all for average calculation
         let userPredictionCount = 0;
-        const MAX_PREDICTIONS = 3;
+        let MAX_PREDICTIONS = 5; // Default, will be updated from API
+        let searchTimeout = null;
 
         async function loadPredictionCount() {
             try {
                 const response = await fetch(API_ENDPOINTS.getPredictionCount);
                 const data = await response.json();
                 userPredictionCount = data.count;
+                MAX_PREDICTIONS = data.max; // Update from API
                 updatePredictionButton();
             } catch (error) {
                 console.error('Error loading prediction count:', error);
@@ -891,15 +922,17 @@
             }
         }
 
-        // Calculate average prediction from all predictions
+        // Calculate average prediction from ALL predictions (not just shown)
         function calculateAveragePrediction() {
-            if (customPredictions.length === 0) {
+            const preds = allPredictionsForAverage.length > 0 ? allPredictionsForAverage : customPredictions;
+            
+            if (preds.length === 0) {
                 return null;
             }
 
             let totalNDA = 0, totalMGB = 0, totalOthers = 0;
             
-            customPredictions.forEach(pred => {
+            preds.forEach(pred => {
                 totalNDA += pred.nda;
                 totalMGB += pred.mgb;
                 totalOthers += pred.others;
@@ -908,9 +941,9 @@
             return {
                 id: 'average',
                 name: '📊 Average Prediction',
-                nda: Math.round(totalNDA / customPredictions.length),
-                mgb: Math.round(totalMGB / customPredictions.length),
-                others: Math.round(totalOthers / customPredictions.length)
+                nda: Math.round(totalNDA / preds.length),
+                mgb: Math.round(totalMGB / preds.length),
+                others: Math.round(totalOthers / preds.length)
             };
         }
 
@@ -941,43 +974,112 @@
             return { newNDA, newMGB, newOthers, newJSP, winner };
         }
 
-        // Populate dropdown with all predictions
-        function renderCustomPredictions() {
+        // Populate average tile and dropdown with predictions
+        function renderCustomPredictions(stats = {}) {
             const selector = document.getElementById('prediction-selector');
             const section = document.getElementById('prediction-selector-section');
-            const countDisplay = document.getElementById('total-predictions-count');
+            const avgContent = document.getElementById('average-prediction-content');
+            
+            // Update count displays
+            const showingCount = document.getElementById('showing-count');
+            const filteredCount = document.getElementById('filtered-count');
+            const totalInDB = document.getElementById('total-in-db');
+            
+            showingCount.textContent = stats.showing || customPredictions.length;
+            filteredCount.textContent = stats.filtered || customPredictions.length;
+            
+            if (stats.total && stats.total > (stats.filtered || 0)) {
+                totalInDB.textContent = ` (${stats.total} total in database)`;
+            } else {
+                totalInDB.textContent = '';
+            }
 
             // Show/hide section
-            if (customPredictions.length === 0) {
+            if (customPredictions.length === 0 && allPredictionsForAverage.length === 0) {
                 section.style.display = 'none';
                 return;
             }
             section.style.display = 'block';
 
-            // Update count
-            countDisplay.textContent = customPredictions.length;
-
-            // Clear and rebuild dropdown options
-            selector.innerHTML = '<option value="">-- Choose a prediction --</option>';
-
-            // Add average prediction first
+            // Display average prediction in static tile
             const avgPred = calculateAveragePrediction();
             if (avgPred) {
-                const avgOption = document.createElement('option');
-                avgOption.value = 'average';
-                avgOption.textContent = avgPred.name;
-                avgOption.style.fontWeight = 'bold';
-                avgOption.style.background = '#f0f4ff';
-                selector.appendChild(avgOption);
+                const avgResults = calculatePredictionResults(avgPred);
+                const { newNDA, newMGB, newOthers, newJSP, winner } = avgResults;
 
-                // Add separator
-                const separator = document.createElement('option');
-                separator.disabled = true;
-                separator.textContent = '─────────────────────────────';
-                selector.appendChild(separator);
+                const ndaStyle = winner.name === 'NDA' ? 'font-weight: bold; color: #f093fb;' : '';
+                const mgbStyle = winner.name === 'MGB' ? 'font-weight: bold; color: #f093fb;' : '';
+                const othersStyle = winner.name === 'Others' ? 'font-weight: bold; color: #f093fb;' : '';
+                const jspStyle = winner.name === 'JSP' ? 'font-weight: bold; color: #f093fb;' : 'color: #5f3dc4; font-weight: bold;';
+                
+                const winnerBadge = '<span style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 3px 8px; border-radius: 8px; font-size: 0.75em; margin-left: 6px; font-weight: bold;">🏆 LEADING</span>';
+
+                avgContent.innerHTML = `
+                    <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 15px;">
+                        <div style="font-size: 0.9em; color: #667eea; font-weight: 600; margin-bottom: 8px; text-align: center;">
+                            Average JSP Vote Transfer:
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; text-align: center;">
+                            <div>
+                                <div style="font-size: 0.8em; color: #666;">NDA</div>
+                                <div style="font-size: 1.3em; font-weight: bold; color: #FF9933;">${avgPred.nda}%</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.8em; color: #666;">MGB</div>
+                                <div style="font-size: 1.3em; font-weight: bold; color: #138808;">${avgPred.mgb}%</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.8em; color: #666;">Others</div>
+                                <div style="font-size: 1.3em; font-weight: bold; color: #999999;">${avgPred.others}%</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="background: #e8f0fe; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 0.85em; color: #667eea; margin-bottom: 5px;">JSP Gets:</div>
+                            <div style="${jspStyle} font-size: 1.8em;">
+                                ${newJSP.toFixed(2)}%
+                                ${winner.name === 'JSP' ? winnerBadge : ''}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="background: #fff; padding: 15px; border: 2px solid #e0e0e0; border-radius: 8px;">
+                        <div style="font-size: 0.9em; color: #667eea; font-weight: 600; margin-bottom: 12px; text-align: center;">
+                            Projected 2025 Vote Share:
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <div style="display: flex; justify-content: space-between; padding: 8px; background: #f8f9fa; border-radius: 6px; ${winner.name === 'NDA' ? 'border: 2px solid #f093fb;' : ''}">
+                                <span style="font-weight: 600;">NDA</span>
+                                <span style="${ndaStyle} font-size: 1.1em;">
+                                    ${newNDA.toFixed(2)}%
+                                    ${winner.name === 'NDA' ? winnerBadge : ''}
+                                </span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 8px; background: #f8f9fa; border-radius: 6px; ${winner.name === 'MGB' ? 'border: 2px solid #f093fb;' : ''}">
+                                <span style="font-weight: 600;">MGB</span>
+                                <span style="${mgbStyle} font-size: 1.1em;">
+                                    ${newMGB.toFixed(2)}%
+                                    ${winner.name === 'MGB' ? winnerBadge : ''}
+                                </span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 8px; background: #f8f9fa; border-radius: 6px; ${winner.name === 'Others' ? 'border: 2px solid #f093fb;' : ''}">
+                                <span style="font-weight: 600;">Others</span>
+                                <span style="${othersStyle} font-size: 1.1em;">
+                                    ${newOthers.toFixed(2)}%
+                                    ${winner.name === 'Others' ? winnerBadge : ''}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `;
             }
 
-            // Add individual predictions
+            // Clear and rebuild dropdown with only individual predictions
+            selector.innerHTML = '<option value="">-- Choose a prediction --</option>';
+
+            // Add only individual predictions to dropdown
             customPredictions.forEach(pred => {
                 const option = document.createElement('option');
                 option.value = pred.id;
@@ -995,12 +1097,8 @@
                 return;
             }
 
-            let prediction;
-            if (predictionId === 'average') {
-                prediction = calculateAveragePrediction();
-            } else {
-                prediction = customPredictions.find(p => p.id == predictionId);
-            }
+            // Find the individual prediction
+            const prediction = customPredictions.find(p => p.id == predictionId);
 
             if (!prediction) {
                 display.style.display = 'none';
@@ -1021,7 +1119,7 @@
             display.innerHTML = `
                 <div style="border-top: 2px solid #667eea; padding-top: 20px;">
                     <h3 style="color: #667eea; margin-bottom: 15px; text-align: center; font-size: 1.2em;">
-                        ${prediction.id === 'average' ? '📊' : '👤'} ${prediction.name}
+                        👤 ${prediction.name}
                     </h3>
                     
                     <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 15px;">
@@ -1093,15 +1191,54 @@
             displaySelectedPrediction(e.target.value);
         });
 
-        async function loadAllPredictions() {
+        async function loadAllPredictions(searchTerm = '') {
             try {
-                const response = await fetch(API_ENDPOINTS.getAllPredictions);
+                // Build URL with query params
+                let url = API_ENDPOINTS.getAllPredictions;
+                const params = new URLSearchParams();
+                
+                if (searchTerm) {
+                    params.append('search', searchTerm);
+                    params.append('limit', 100); // Show more when searching
+                } else {
+                    params.append('limit', 20); // Default 20 recent
+                }
+                
+                if (params.toString()) {
+                    url += '?' + params.toString();
+                }
+                
+                const response = await fetch(url);
                 const data = await response.json();
+                
                 customPredictions = data.predictions || [];
-                renderCustomPredictions();
+                
+                // Load ALL predictions for average calculation (without limit)
+                if (!searchTerm) {
+                    const allResponse = await fetch(API_ENDPOINTS.getAllPredictions + '?limit=999999');
+                    const allData = await allResponse.json();
+                    allPredictionsForAverage = allData.predictions || [];
+                }
+                
+                // Pass stats to rendering function
+                renderCustomPredictions({
+                    showing: data.showing,
+                    filtered: data.filtered,
+                    total: data.total
+                });
             } catch (error) {
                 console.error('Error loading predictions:', error);
             }
+        }
+        
+        // Search with debounce
+        function handleSearch() {
+            clearTimeout(searchTimeout);
+            const searchTerm = document.getElementById('prediction-search').value.trim();
+            
+            searchTimeout = setTimeout(() => {
+                loadAllPredictions(searchTerm);
+            }, 500); // Wait 500ms after user stops typing
         }
 
         // Allow Enter key to submit prediction
@@ -1110,6 +1247,9 @@
                 addCustomPrediction();
             }
         });
+        
+        // Add search functionality
+        document.getElementById('prediction-search').addEventListener('input', handleSearch);
 
         // Load predictions and count on page load
         document.addEventListener('DOMContentLoaded', async function() {

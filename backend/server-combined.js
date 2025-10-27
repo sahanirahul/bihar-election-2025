@@ -6,7 +6,7 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const PREDICTIONS_FILE = path.join(__dirname, 'predictions.json');
-const MAX_PREDICTIONS_PER_IP = 3;
+const MAX_PREDICTIONS_PER_IP = parseInt(process.env.MAX_PREDICTIONS_PER_IP) || 5;
 
 // Middleware
 app.use(cors());
@@ -44,13 +44,38 @@ async function writePredictions(data) {
     await fs.writeFile(PREDICTIONS_FILE, JSON.stringify(data, null, 2));
 }
 
-// GET all predictions
+// GET all predictions (with pagination and search)
 app.get('/api/predictions', async (req, res) => {
     try {
         const data = await readPredictions();
+        
+        // Get query parameters
+        const limit = parseInt(req.query.limit) || 20; // Default 20
+        const search = req.query.search ? req.query.search.toLowerCase() : '';
+        
         // Don't send IP addresses to frontend
-        const predictions = data.predictions.map(({ ip, ...pred }) => pred);
-        res.json({ predictions });
+        let predictions = data.predictions.map(({ ip, ...pred }) => pred);
+        
+        // Sort by timestamp (most recent first)
+        predictions.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        
+        // Filter by search term if provided
+        if (search) {
+            predictions = predictions.filter(p => 
+                p.name.toLowerCase().includes(search)
+            );
+        }
+        
+        // Apply limit (return total count for frontend)
+        const total = predictions.length;
+        const limited = predictions.slice(0, limit);
+        
+        res.json({ 
+            predictions: limited,
+            total: data.predictions.length, // Total in database
+            filtered: total, // Total matching search
+            showing: limited.length // Currently returned
+        });
     } catch (error) {
         console.error('Error reading predictions:', error);
         res.status(500).json({ error: 'Failed to read predictions' });
