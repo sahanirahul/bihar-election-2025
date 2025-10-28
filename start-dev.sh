@@ -13,6 +13,46 @@ if ! command -v node &> /dev/null; then
     exit 1
 fi
 
+# Load environment variables from .env file if it exists
+if [ -f ".env" ]; then
+    echo "📄 Loading environment variables from .env file..."
+    export $(cat .env | grep -v '^#' | grep -v '^$' | xargs)
+    echo "✅ Environment variables loaded"
+    echo ""
+else
+    echo "⚠️  No .env file found. Using system environment variables."
+    echo "   Create a .env file with your database credentials."
+    echo ""
+fi
+
+# Check required environment variables
+REQUIRED_VARS=("DB_HOST" "DB_USER" "DB_PASSWORD" "DB_NAME")
+MISSING_VARS=()
+
+for var in "${REQUIRED_VARS[@]}"; do
+    if [ -z "${!var}" ]; then
+        MISSING_VARS+=("$var")
+    fi
+done
+
+if [ ${#MISSING_VARS[@]} -ne 0 ]; then
+    echo "❌ Missing required environment variables:"
+    for var in "${MISSING_VARS[@]}"; do
+        echo "   - $var"
+    done
+    echo ""
+    echo "Please create a .env file with these variables or export them."
+    exit 1
+fi
+
+# Display database connection info (hide password)
+echo "📊 Database Configuration:"
+echo "   Host: $DB_HOST"
+echo "   Database: $DB_NAME"
+echo "   User: $DB_USER"
+echo "   Port: ${DB_PORT:-3306}"
+echo ""
+
 # Install backend dependencies if needed
 if [ ! -d "backend/node_modules" ]; then
     echo "📦 Installing backend dependencies..."
@@ -25,7 +65,7 @@ fi
 # Start backend in background
 echo "🚀 Starting backend server on port 3000..."
 cd backend
-node server.js &
+node server-combined.js &
 BACKEND_PID=$!
 cd ..
 

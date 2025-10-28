@@ -1154,25 +1154,48 @@
             let totalNDA = 0, totalMGB = 0, totalOthers = 0;
             
             preds.forEach(pred => {
-                totalNDA += pred.nda;
-                totalMGB += pred.mgb;
-                totalOthers += pred.others;
+                // Debug: Log first prediction to see data structure
+                if (preds.indexOf(pred) === 0) {
+                    console.log('Sample prediction data:', pred);
+                }
+                
+                // Handle both old and new field names for backward compatibility
+                // Parse to number because MySQL DECIMAL returns as string
+                const nda = parseFloat(pred.nda || pred.nda_transfer) || 0;
+                const mgb = parseFloat(pred.mgb || pred.mgb_transfer) || 0;
+                const others = parseFloat(pred.others || pred.others_transfer) || 0;
+                
+                totalNDA += nda;
+                totalMGB += mgb;
+                totalOthers += others;
             });
+
+            const avgNDA = Math.round(totalNDA / preds.length);
+            const avgMGB = Math.round(totalMGB / preds.length);
+            const avgOthers = Math.round(totalOthers / preds.length);
+
+            console.log('Average calculation:', { avgNDA, avgMGB, avgOthers, count: preds.length });
 
             return {
                 id: 'average',
                 name: '📊 Average Prediction',
-                nda: Math.round(totalNDA / preds.length),
-                mgb: Math.round(totalMGB / preds.length),
-                others: Math.round(totalOthers / preds.length)
+                nda: avgNDA,
+                mgb: avgMGB,
+                others: avgOthers
             };
         }
 
         // Calculate results for a prediction
         function calculatePredictionResults(pred) {
-            const ndaTransfer = pred.nda / 100;
-            const mgbTransfer = pred.mgb / 100;
-            const othersTransfer = pred.others / 100;
+            // Handle both old and new field names for backward compatibility
+            // Parse to number because MySQL DECIMAL returns as string
+            const nda = parseFloat(pred.nda || pred.nda_transfer) || 0;
+            const mgb = parseFloat(pred.mgb || pred.mgb_transfer) || 0;
+            const others = parseFloat(pred.others || pred.others_transfer) || 0;
+            
+            const ndaTransfer = nda / 100;
+            const mgbTransfer = mgb / 100;
+            const othersTransfer = others / 100;
 
             const newNDA = baseVotes.nda * (1 - ndaTransfer);
             const newMGB = baseVotes.mgb * (1 - mgbTransfer);
@@ -1225,7 +1248,14 @@
             // Display average prediction in static tile
             const avgPred = calculateAveragePrediction();
             if (avgPred) {
-                const avgResults = calculatePredictionResults(avgPred);
+                // Ensure avgPred has valid numbers, not NaN
+                const avgNDA = isNaN(avgPred.nda) ? 0 : avgPred.nda;
+                const avgMGB = isNaN(avgPred.mgb) ? 0 : avgPred.mgb;
+                const avgOthers = isNaN(avgPred.others) ? 0 : avgPred.others;
+                
+                console.log('Rendering avgPred:', { nda: avgNDA, mgb: avgMGB, others: avgOthers });
+                
+                const avgResults = calculatePredictionResults({ nda: avgNDA, mgb: avgMGB, others: avgOthers });
                 const { newNDA, newMGB, newOthers, newJSP, winner } = avgResults;
 
                 const ndaStyle = winner.name === 'NDA' ? 'font-weight: bold; color: #f093fb;' : '';
@@ -1243,15 +1273,15 @@
                         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; text-align: center;">
                             <div>
                                 <div style="font-size: 0.8em; color: #666;">NDA</div>
-                                <div style="font-size: 1.3em; font-weight: bold; color: #FF9933;">${avgPred.nda}%</div>
+                                <div style="font-size: 1.3em; font-weight: bold; color: #FF9933;">${avgNDA}%</div>
                             </div>
                             <div>
                                 <div style="font-size: 0.8em; color: #666;">MGB</div>
-                                <div style="font-size: 1.3em; font-weight: bold; color: #138808;">${avgPred.mgb}%</div>
+                                <div style="font-size: 1.3em; font-weight: bold; color: #138808;">${avgMGB}%</div>
                             </div>
                             <div>
                                 <div style="font-size: 0.8em; color: #666;">Others</div>
-                                <div style="font-size: 1.3em; font-weight: bold; color: #999999;">${avgPred.others}%</div>
+                                <div style="font-size: 1.3em; font-weight: bold; color: #999999;">${avgOthers}%</div>
                             </div>
                         </div>
                     </div>

@@ -1,12 +1,80 @@
 const express = require('express');
 const cors = require('cors');
-const fs = require('fs').promises;
 const path = require('path');
+const mysql = require('mysql2/promise');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const PREDICTIONS_FILE = path.join(__dirname, 'predictions.json');
 const MAX_PREDICTIONS_PER_IP = parseInt(process.env.MAX_PREDICTIONS_PER_IP) || 5;
+
+// MySQL Connection Configuration
+const dbConfig = {
+    host: process.env.DB_HOST,
+    port: parseInt(process.env.DB_PORT) || 3306,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
+    connectTimeout: 10000
+};
+
+// Validate required environment variables
+const requiredEnvVars = ['DB_HOST', 'DB_USER', 'DB_PASSWORD', 'DB_NAME'];
+const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
+
+if (missingVars.length > 0) {
+    console.error('❌ Missing required environment variables:', missingVars.join(', '));
+    console.error('Please set the following environment variables:');
+    console.error('  DB_HOST - MySQL hostname');
+    console.error('  DB_USER - MySQL username');
+    console.error('  DB_PASSWORD - MySQL password');
+    console.error('  DB_NAME - MySQL database name');
+    console.error('  DB_PORT - MySQL port (optional, default: 3306)');
+    console.error('  MAX_PREDICTIONS_PER_IP - Max predictions per IP (optional, default: 5)');
+    process.exit(1);
+}
+
+// Create MySQL connection pool
+let pool;
+
+async function initDatabase() {
+    try {
+        pool = mysql.createPool(dbConfig);
+        
+        // Test connection
+        const connection = await pool.getConnection();
+        console.log('✅ MySQL connected successfully');
+        console.log(`📊 Database: ${dbConfig.database}@${dbConfig.host}`);
+        connection.release();
+        
+        // Create table if it doesn't exist
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS bihar_election_predictions (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                name VARCHAR(255) NOT NULL,
+                nda_transfer DECIMAL(5,2) NOT NULL,
+                mgb_transfer DECIMAL(5,2) NOT NULL,
+                others_transfer DECIMAL(5,2) NOT NULL,
+                nda_result DECIMAL(5,2) NOT NULL,
+                mgb_result DECIMAL(5,2) NOT NULL,
+                others_result DECIMAL(5,2) NOT NULL,
+                jsp_result DECIMAL(5,2) NOT NULL,
+                ip_address VARCHAR(45) NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                INDEX idx_ip_address (ip_address),
+                INDEX idx_created_at (created_at),
+                INDEX idx_name (name)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        `);
+        console.log('✅ Database table ready');
+        
+    } catch (error) {
+        console.error('❌ Failed to connect to MySQL:', error.message);
+        process.exit(1);
+    }
+}
 
 // Middleware
 app.use(cors());
@@ -23,58 +91,76 @@ function getClientIP(req) {
            req.socket.remoteAddress;
 }
 
-// Helper function to read predictions
-async function readPredictions() {
-    try {
-        const data = await fs.readFile(PREDICTIONS_FILE, 'utf8');
-        return JSON.parse(data);
-    } catch (error) {
-        if (error.code === 'ENOENT') {
-            // File doesn't exist, create it
-            const initialData = { predictions: [] };
-            await fs.writeFile(PREDICTIONS_FILE, JSON.stringify(initialData, null, 2));
-            return initialData;
-        }
-        throw error;
-    }
-}
-
-// Helper function to write predictions
-async function writePredictions(data) {
-    await fs.writeFile(PREDICTIONS_FILE, JSON.stringify(data, null, 2));
+// Helper function to calculate results (same logic as frontend)
+function calculateResults(nda, mgb, others) {
+    const BASE_NDA = 41.40;
+    const BASE_MGB = 38.75;
+    const BASE_OTHERS = 19.85;
+    
+    const ndaTransfer = nda / 100;
+    const mgbTransfer = mgb / 100;
+    const othersTransfer = others / 100;
+    
+    const newNDA = BASE_NDA * (1 - ndaTransfer);
+    const newMGB = BASE_MGB * (1 - mgbTransfer);
+    const newOthers = BASE_OTHERS * (1 - othersTransfer);
+    const newJSP = (BASE_NDA * ndaTransfer) + (BASE_MGB * mgbTransfer) + (BASE_OTHERS * othersTransfer);
+    
+    return {
+        nda_result: parseFloat(newNDA.toFixed(2)),
+        mgb_result: parseFloat(newMGB.toFixed(2)),
+        others_result: parseFloat(newOthers.toFixed(2)),
+        jsp_result: parseFloat(newJSP.toFixed(2))
+    };
 }
 
 // GET all predictions (with pagination and search)
 app.get('/api/predictions', async (req, res) => {
     try {
-        const data = await readPredictions();
-        
         // Get query parameters
         const limit = parseInt(req.query.limit) || 20; // Default 20
-        const search = req.query.search ? req.query.search.toLowerCase() : '';
+        const search = req.query.search || '';
         
-        // Don't send IP addresses to frontend
-        let predictions = data.predictions.map(({ ip, ...pred }) => pred);
+        let query = `
+            SELECT 
+                id, name, 
+                nda_transfer as nda, 
+                mgb_transfer as mgb, 
+                others_transfer as others,
+                nda_result, mgb_result, others_result, jsp_result,
+                created_at as timestamp
+            FROM bihar_election_predictions
+        `;
+        let params = [];
         
-        // Sort by timestamp (most recent first)
-        predictions.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-        
-        // Filter by search term if provided
+        // Add search filter
         if (search) {
-            predictions = predictions.filter(p => 
-                p.name.toLowerCase().includes(search)
-            );
+            query += ' WHERE name LIKE ?';
+            params.push(`%${search}%`);
         }
         
-        // Apply limit (return total count for frontend)
-        const total = predictions.length;
-        const limited = predictions.slice(0, limit);
+        // Get total count matching search
+        const countQuery = search 
+            ? 'SELECT COUNT(*) as total FROM bihar_election_predictions WHERE name LIKE ?'
+            : 'SELECT COUNT(*) as total FROM bihar_election_predictions';
+        const [countResult] = await pool.query(countQuery, search ? [`%${search}%`] : []);
+        const filteredTotal = countResult[0].total;
+        
+        // Get total count (all)
+        const [totalCountResult] = await pool.query('SELECT COUNT(*) as total FROM bihar_election_predictions');
+        const allTotal = totalCountResult[0].total;
+        
+        // Order by most recent and apply limit
+        query += ' ORDER BY created_at DESC LIMIT ?';
+        params.push(limit);
+        
+        const [predictions] = await pool.query(query, params);
         
         res.json({ 
-            predictions: limited,
-            total: data.predictions.length, // Total in database
-            filtered: total, // Total matching search
-            showing: limited.length // Currently returned
+            predictions,
+            total: allTotal, // Total in database
+            filtered: filteredTotal, // Total matching search
+            showing: predictions.length // Currently returned
         });
     } catch (error) {
         console.error('Error reading predictions:', error);
@@ -86,9 +172,16 @@ app.get('/api/predictions', async (req, res) => {
 app.get('/api/predictions/count', async (req, res) => {
     try {
         const clientIP = getClientIP(req);
-        const data = await readPredictions();
-        const count = data.predictions.filter(p => p.ip === clientIP).length;
-        res.json({ count, max: MAX_PREDICTIONS_PER_IP, remaining: MAX_PREDICTIONS_PER_IP - count });
+        const [result] = await pool.query(
+            'SELECT COUNT(*) as count FROM bihar_election_predictions WHERE ip_address = ?',
+            [clientIP]
+        );
+        const count = result[0].count;
+        res.json({ 
+            count, 
+            max: MAX_PREDICTIONS_PER_IP, 
+            remaining: MAX_PREDICTIONS_PER_IP - count 
+        });
     } catch (error) {
         console.error('Error checking prediction count:', error);
         res.status(500).json({ error: 'Failed to check prediction count' });
@@ -118,35 +211,53 @@ app.post('/api/predictions', async (req, res) => {
             return res.status(400).json({ error: 'At least one vote transfer must be non-zero' });
         }
 
-        // Read current predictions
-        const data = await readPredictions();
-
         // Check IP limit
-        const ipPredictions = data.predictions.filter(p => p.ip === clientIP);
-        if (ipPredictions.length >= MAX_PREDICTIONS_PER_IP) {
+        const [ipCount] = await pool.query(
+            'SELECT COUNT(*) as count FROM bihar_election_predictions WHERE ip_address = ?',
+            [clientIP]
+        );
+        
+        if (ipCount[0].count >= MAX_PREDICTIONS_PER_IP) {
             return res.status(429).json({ 
                 error: `Maximum ${MAX_PREDICTIONS_PER_IP} predictions per user reached` 
             });
         }
 
-        // Create new prediction
-        const newPrediction = {
-            id: Date.now(),
-            name: name.trim(),
-            nda,
-            mgb,
-            others,
-            ip: clientIP,
-            timestamp: new Date().toISOString()
-        };
+        // Calculate results
+        const results = calculateResults(nda, mgb, others);
 
-        // Add and save
-        data.predictions.push(newPrediction);
-        await writePredictions(data);
+        // Insert new prediction
+        const [insertResult] = await pool.query(
+            `INSERT INTO bihar_election_predictions 
+            (name, nda_transfer, mgb_transfer, others_transfer, 
+             nda_result, mgb_result, others_result, jsp_result, ip_address)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+                name.trim(),
+                nda,
+                mgb,
+                others,
+                results.nda_result,
+                results.mgb_result,
+                results.others_result,
+                results.jsp_result,
+                clientIP
+            ]
+        );
 
-        // Return without IP
-        const { ip, ...predictionWithoutIP } = newPrediction;
-        res.status(201).json({ prediction: predictionWithoutIP });
+        // Fetch the created prediction
+        const [newPrediction] = await pool.query(
+            `SELECT id, name, 
+                    nda_transfer as nda, 
+                    mgb_transfer as mgb, 
+                    others_transfer as others,
+                    nda_result, mgb_result, others_result, jsp_result,
+                    created_at as timestamp
+             FROM bihar_election_predictions WHERE id = ?`,
+            [insertResult.insertId]
+        );
+
+        res.status(201).json({ prediction: newPrediction[0] });
     } catch (error) {
         console.error('Error adding prediction:', error);
         res.status(500).json({ error: 'Failed to add prediction' });
@@ -159,21 +270,22 @@ app.delete('/api/predictions/:id', async (req, res) => {
         const clientIP = getClientIP(req);
         const predictionId = parseInt(req.params.id);
 
-        const data = await readPredictions();
-        const predictionIndex = data.predictions.findIndex(p => p.id === predictionId);
+        // Check if prediction exists and belongs to this IP
+        const [predictions] = await pool.query(
+            'SELECT ip_address FROM bihar_election_predictions WHERE id = ?',
+            [predictionId]
+        );
 
-        if (predictionIndex === -1) {
+        if (predictions.length === 0) {
             return res.status(404).json({ error: 'Prediction not found' });
         }
 
-        // Check if the prediction belongs to this IP
-        if (data.predictions[predictionIndex].ip !== clientIP) {
+        if (predictions[0].ip_address !== clientIP) {
             return res.status(403).json({ error: 'You can only delete your own predictions' });
         }
 
-        // Remove prediction
-        data.predictions.splice(predictionIndex, 1);
-        await writePredictions(data);
+        // Delete prediction
+        await pool.query('DELETE FROM bihar_election_predictions WHERE id = ?', [predictionId]);
 
         res.json({ message: 'Prediction deleted successfully' });
     } catch (error) {
@@ -183,8 +295,23 @@ app.delete('/api/predictions/:id', async (req, res) => {
 });
 
 // Health check
-app.get('/health', (req, res) => {
-    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+app.get('/health', async (req, res) => {
+    try {
+        // Check database connection
+        await pool.query('SELECT 1');
+        res.json({ 
+            status: 'ok', 
+            timestamp: new Date().toISOString(),
+            database: 'connected'
+        });
+    } catch (error) {
+        res.status(503).json({ 
+            status: 'error', 
+            timestamp: new Date().toISOString(),
+            database: 'disconnected',
+            error: error.message
+        });
+    }
 });
 
 // Serve index.html for root path
@@ -192,11 +319,24 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'index.html'));
 });
 
-// Start server
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-    console.log(`Frontend: http://localhost:${PORT}`);
-    console.log(`API: http://localhost:${PORT}/api/predictions`);
-    console.log(`Predictions file: ${PREDICTIONS_FILE}`);
+// Initialize database and start server
+initDatabase().then(() => {
+    app.listen(PORT, () => {
+        console.log(`🚀 Server running on port ${PORT}`);
+        console.log(`📱 Frontend: http://localhost:${PORT}`);
+        console.log(`🔌 API: http://localhost:${PORT}/api/predictions`);
+        console.log(`⚙️  Max predictions per IP: ${MAX_PREDICTIONS_PER_IP}`);
+    });
+}).catch(error => {
+    console.error('Failed to start server:', error);
+    process.exit(1);
 });
 
+// Graceful shutdown
+process.on('SIGTERM', async () => {
+    console.log('SIGTERM received, closing database connection...');
+    if (pool) {
+        await pool.end();
+    }
+    process.exit(0);
+});

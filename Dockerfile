@@ -18,10 +18,6 @@ COPY index.html ./
 COPY config.js ./
 COPY *.jpg ./
 
-# Create predictions.json if it doesn't exist
-RUN touch ./backend/predictions.json && \
-    echo '{"predictions":[]}' > ./backend/predictions.json
-
 # Expose port (Render will set PORT env variable)
 EXPOSE 3000
 

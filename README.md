@@ -4,10 +4,10 @@ An interactive web calculator to predict Bihar 2025 election results based on vo
 
 ## Architecture
 
-- **Frontend**: HTML/CSS/JavaScript (hosted on S3 + CloudFront)
-- **Backend**: Node.js Express API (hosted on EC2)
-- **Storage**: JSON file (no database required)
-- **Limit**: Max 3 predictions per IP address (prevents spam)
+- **Frontend**: HTML/CSS/JavaScript (served by backend)
+- **Backend**: Node.js Express API (hosted on Render.com)
+- **Storage**: MySQL database (AWS RDS or other)
+- **Limit**: Max 5 predictions per IP address (configurable)
 
 ## Features
 
@@ -40,34 +40,65 @@ An interactive web calculator to predict Bihar 2025 election results based on vo
 
 ### For Developers - Local Development
 
-1. **Start Backend**:
+#### Option 1: Docker Compose (Easiest)
+```bash
+# Start MySQL + App together
+docker-compose up
+
+# Access at: http://localhost:3000
+# Stop: docker-compose down
+```
+
+#### Option 2: Manual Setup
+1. **Setup MySQL:**
+   - Install MySQL locally or use remote MySQL server
+   - Create database: `numenor`
+   - Run: `backend/init-database.sql` (or app creates table automatically)
+
+2. **Set Environment Variables:**
+```bash
+export DB_HOST=localhost
+export DB_USER=root
+export DB_PASSWORD=yourpassword
+export DB_NAME=numenor
+export DB_PORT=3306
+```
+
+3. **Start Backend:**
 ```bash
 cd backend
 npm install
-npm start
+node server-combined.js
 ```
 
-2. **Start Frontend**:
-```bash
-# Open index.html in browser, or use local server:
-python3 -m http.server 8000
-```
-
-3. **Update config.js** to use localhost:
-```javascript
-const API_BASE_URL = 'http://localhost:3000';
-```
+4. **Access:** http://localhost:3000
 
 ## Deployment
 
-See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed deployment instructions to AWS EC2 + S3.
+### Quick Deploy to Render.com
 
-### Quick Deploy Summary
+1. **Setup MySQL Database** (AWS RDS Free Tier):
+   - See [MYSQL_SETUP.md](MYSQL_SETUP.md) for detailed guide
+   - Or use any MySQL server accessible from internet
 
-1. **Backend**: Deploy to EC2 with PM2 + Nginx
-2. **Frontend**: Upload to S3 bucket (or CloudFront)
-3. **Update config.js**: Set your backend URL
-4. **Done!** Users can now access and add predictions
+2. **Push to GitHub:**
+```bash
+git add .
+git commit -m "Update"
+git push origin main
+```
+
+3. **Configure Render Environment Variables:**
+   - Go to Render Dashboard → Your Service → Environment
+   - Add: `DB_HOST`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`, `DB_PORT`
+   - See [ENV_CONFIG.md](ENV_CONFIG.md) for details
+
+4. **Deploy** - Render auto-deploys from GitHub
+
+📖 **Full Guides:**
+- [MYSQL_QUICKSTART.md](MYSQL_QUICKSTART.md) - Quick migration guide
+- [MYSQL_SETUP.md](MYSQL_SETUP.md) - Complete MySQL setup
+- [RENDER_QUICKSTART.md](RENDER_QUICKSTART.md) - Render deployment
 
 ## Alliance Changes (2020 → 2025)
 
