@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <title>Bihar Election 2025 - JSP Vote Impact Calculator</title>
     <style>
         * {
@@ -11,12 +13,19 @@
             box-sizing: border-box;
         }
 
+        html {
+            scroll-behavior: smooth;
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 10px;
             color: #333;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         .container {
@@ -46,7 +55,7 @@
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 20px;
             margin-bottom: 20px;
         }
@@ -159,6 +168,8 @@
             cursor: pointer;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
             width: 100%;
+            min-height: 44px; /* iOS recommended touch target size */
+            touch-action: manipulation; /* Faster tap response */
         }
 
         .add-prediction-btn:hover {
@@ -168,6 +179,7 @@
 
         .add-prediction-btn:active {
             transform: translateY(0);
+            opacity: 0.9;
         }
 
         .custom-predictions-container {
@@ -186,16 +198,27 @@
             color: white;
             border: none;
             border-radius: 50%;
-            width: 25px;
-            height: 25px;
+            width: 32px;
+            height: 32px;
+            min-width: 32px;
+            min-height: 32px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 16px;
             line-height: 1;
-            transition: background 0.2s ease;
+            transition: background 0.2s ease, transform 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: manipulation;
         }
 
         .delete-prediction-btn:hover {
             background: #c82333;
+            transform: scale(1.1);
+        }
+
+        .delete-prediction-btn:active {
+            transform: scale(0.95);
         }
 
         .custom h3 {
@@ -281,13 +304,20 @@
             border-radius: 12px;
             padding: 20px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.15);
-            display: grid;
-            grid-template-columns: 380px 1fr;
+            display: flex;
+            flex-wrap: wrap;
             gap: 30px;
             align-items: start;
         }
 
+        .controls-right {
+            flex: 1;
+            min-width: 300px;
+        }
+
         .controls-left {
+            flex: 0 0 350px;
+            min-width: 280px;
             display: flex;
             flex-direction: column;
             gap: 18px;
@@ -337,6 +367,8 @@
             outline: none;
             appearance: none;
             -webkit-appearance: none;
+            cursor: pointer;
+            touch-action: none; /* Prevent scroll while sliding */
         }
 
         input[type="range"]::-webkit-slider-thumb {
@@ -347,11 +379,14 @@
             border-radius: 50%;
             background: #667eea;
             cursor: pointer;
-            transition: background 0.3s ease;
+            transition: background 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
-        input[type="range"]::-webkit-slider-thumb:hover {
+        input[type="range"]::-webkit-slider-thumb:hover,
+        input[type="range"]::-webkit-slider-thumb:active {
             background: #764ba2;
+            transform: scale(1.2);
         }
 
         input[type="range"]::-moz-range-thumb {
@@ -361,6 +396,14 @@
             background: #667eea;
             cursor: pointer;
             border: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        input[type="range"]::-moz-range-thumb:hover,
+        input[type="range"]::-moz-range-thumb:active {
+            background: #764ba2;
+            transform: scale(1.2);
         }
 
         .change-indicator {
@@ -432,25 +475,203 @@
 
         @media (max-width: 1100px) {
             .controls {
-                grid-template-columns: 1fr;
+                flex-direction: column;
+            }
+
+            .controls-right {
+                order: 1;
+                width: 100%;
             }
 
             .controls-left {
-                margin-bottom: 20px;
+                order: 2;
+                width: 100%;
+                flex: 1;
             }
         }
 
         @media (max-width: 768px) {
+            body {
+                padding: 5px;
+            }
+
+            header {
+                padding: 10px 5px;
+                margin-bottom: 10px;
+            }
+
             header h1 {
-                font-size: 1.5em;
+                font-size: 1.3em;
+            }
+
+            header h1 small {
+                display: block;
+                margin-left: 0;
+                margin-top: 5px;
+                font-size: 0.6em;
+            }
+
+            .container {
+                padding: 0;
             }
 
             .grid {
                 grid-template-columns: 1fr;
+                gap: 15px;
+                margin-bottom: 15px;
             }
 
             .scenario-grid {
                 grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .card {
+                padding: 12px;
+                border-radius: 10px;
+            }
+
+            .card h2 {
+                font-size: 1em;
+                margin-bottom: 10px;
+                padding-bottom: 6px;
+            }
+
+            .party-row {
+                padding: 6px;
+                margin-bottom: 5px;
+            }
+
+            .party-name {
+                font-size: 0.9em;
+            }
+
+            .vote-share {
+                font-size: 1em;
+            }
+
+            .seats {
+                font-size: 0.75em;
+            }
+
+            .controls {
+                padding: 15px;
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .controls h2 {
+                font-size: 1.1em;
+                margin-bottom: 8px;
+            }
+
+            .controls p {
+                font-size: 0.9em;
+                margin-bottom: 12px;
+            }
+
+            .controls-left {
+                margin-bottom: 15px;
+            }
+
+            .controls-right {
+                gap: 12px;
+            }
+
+            .control-label {
+                font-size: 0.9em;
+                margin-bottom: 6px;
+            }
+
+            .control-value {
+                font-size: 1em;
+            }
+
+            /* Make sliders more touch-friendly */
+            input[type="range"] {
+                height: 10px;
+                margin: 8px 0;
+            }
+
+            input[type="range"]::-webkit-slider-thumb {
+                width: 24px;
+                height: 24px;
+            }
+
+            input[type="range"]::-moz-range-thumb {
+                width: 24px;
+                height: 24px;
+            }
+
+            .add-prediction-box {
+                padding: 12px;
+            }
+
+            .add-prediction-box h3 {
+                font-size: 0.95em;
+                margin-bottom: 10px;
+            }
+
+            .prediction-input-group input {
+                padding: 10px;
+                font-size: 0.9em;
+            }
+
+            .add-prediction-btn {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
+
+            .party-logo {
+                width: 28px;
+                height: 28px;
+                margin-right: 6px;
+            }
+
+            .change-indicator {
+                font-size: 0.7em;
+            }
+
+            .total-votes {
+                font-size: 0.85em;
+                padding: 8px;
+            }
+        }
+
+        /* Extra small mobile devices */
+        @media (max-width: 480px) {
+            body {
+                padding: 3px;
+            }
+
+            header h1 {
+                font-size: 1.1em;
+            }
+
+            .card {
+                padding: 10px;
+            }
+
+            .controls {
+                padding: 12px;
+            }
+
+            .controls h2 {
+                font-size: 1em;
+            }
+
+            .party-name {
+                font-size: 0.85em;
+            }
+
+            .vote-share {
+                font-size: 0.95em;
+            }
+
+            .party-logo {
+                width: 24px;
+                height: 24px;
+                margin-right: 5px;
             }
         }
     </style>
@@ -557,25 +778,13 @@
 
         <!-- Second Layer: Controls (Two Columns) -->
         <div class="controls" style="margin-bottom: 20px;">
-            <!-- Left Column: Heading & Add Prediction -->
-            <div class="controls-left">
-                <div>
+            <!-- Right Column: Sliders (shown first on mobile) -->
+            <div class="controls-right" style="order: 1;">
+                <div style="margin-bottom: 15px;">
                     <h2>⚙️ Adjust JSP Vote Transfer</h2>
                     <p>Set what percentage of votes JSP will take from each party</p>
                 </div>
                 
-                <!-- Add Custom Prediction -->
-                <div class="add-prediction-box">
-                    <h3>💾 Save Your Prediction</h3>
-                    <div class="prediction-input-group">
-                        <input type="text" id="prediction-name" placeholder="Enter your prediction name (e.g., Virat's Prediction 1)" maxlength="30">
-                        <button class="add-prediction-btn" onclick="addCustomPrediction()">Add Prediction</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Right Column: Sliders -->
-            <div class="controls-right">
                 <div class="control-group">
                     <div class="control-label">
                         <span>Votes from NDA → JSP</span>
@@ -598,6 +807,18 @@
                         <span class="control-value"><span id="others-percent">0</span>%</span>
                     </div>
                     <input type="range" id="others-slider" min="0" max="100" value="0" step="1">
+                </div>
+            </div>
+
+            <!-- Left Column: Add Prediction (shown second on mobile) -->
+            <div class="controls-left" style="order: 2;">
+                <!-- Add Custom Prediction -->
+                <div class="add-prediction-box">
+                    <h3>💾 Save Your Prediction</h3>
+                    <div class="prediction-input-group">
+                        <input type="text" id="prediction-name" placeholder="Enter your prediction name (e.g., Virat's Prediction 1)" maxlength="30">
+                        <button class="add-prediction-btn" onclick="addCustomPrediction()">Add Prediction</button>
+                    </div>
                 </div>
             </div>
         </div>
