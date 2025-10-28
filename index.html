@@ -1337,14 +1337,20 @@
                 option.textContent = pred.name;
                 selector.appendChild(option);
             });
+            
+            // Reset dropdown to default and clear display
+            selector.value = '';
+            displaySelectedPrediction('');
         }
 
         // Display selected prediction
         function displaySelectedPrediction(predictionId) {
             const display = document.getElementById('selected-prediction-display');
             
-            if (!predictionId) {
+            // Clear display if no prediction selected or empty string
+            if (!predictionId || predictionId === '' || predictionId === 'none') {
                 display.style.display = 'none';
+                display.innerHTML = ''; // Clear content too
                 return;
             }
 
