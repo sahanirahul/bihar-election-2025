@@ -19,52 +19,57 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 10px;
+            padding: 8px;
             color: #333;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
         }
 
         .container {
             max-width: 1400px;
             margin: 0 auto;
+            width: 100%;
         }
 
         header {
             text-align: center;
             color: white;
-            margin-bottom: 15px;
-            padding: 15px 20px;
+            margin-bottom: 12px;
+            padding: 12px 8px;
         }
 
         header h1 {
-            font-size: 1.8em;
-            margin-bottom: 0;
+            font-size: 1.5em;
+            margin-bottom: 4px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            font-weight: 700;
+            letter-spacing: -0.5px;
         }
 
         header h1 small {
-            font-size: 0.5em;
-            opacity: 0.85;
-            font-weight: normal;
-            margin-left: 10px;
+            font-size: 0.45em;
+            display: block;
+            margin-top: 6px;
+            font-weight: 400;
+            opacity: 0.9;
         }
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-bottom: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+            gap: 12px;
+            margin-bottom: 15px;
         }
 
         .scenario-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
         }
 
         .scenario-card {
@@ -123,10 +128,10 @@
         }
 
         .add-prediction-box {
-            padding: 18px;
-            background: #f0f4ff;
-            border-radius: 10px;
-            border: 2px dashed #667eea;
+            padding: 16px;
+            background: linear-gradient(135deg, #f0f4ff 0%, #e8eaf6 100%);
+            border-radius: 14px;
+            border: 2px solid rgba(102, 126, 234, 0.2);
         }
 
         .add-prediction-box h3 {
@@ -134,6 +139,7 @@
             margin-bottom: 12px;
             font-size: 1em;
             text-align: center;
+            font-weight: 600;
         }
 
         .prediction-input-group {
@@ -144,42 +150,46 @@
 
         .prediction-input-group input {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #667eea;
-            border-radius: 8px;
+            padding: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
             font-size: 0.95em;
             font-family: inherit;
+            transition: all 0.2s ease;
+            background: white;
         }
 
         .prediction-input-group input:focus {
             outline: none;
-            border-color: #764ba2;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.08);
+            transform: translateY(-1px);
         }
 
         .add-prediction-btn {
-            padding: 12px 24px;
+            padding: 14px 24px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 0.95em;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            transition: all 0.2s ease;
             width: 100%;
-            min-height: 44px; /* iOS recommended touch target size */
-            touch-action: manipulation; /* Faster tap response */
+            min-height: 48px;
+            touch-action: manipulation;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
         }
 
         .add-prediction-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
         }
 
         .add-prediction-btn:active {
             transform: translateY(0);
-            opacity: 0.9;
+            box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3);
         }
 
         .custom-predictions-container {
@@ -228,22 +238,25 @@
 
         .card {
             background: white;
-            border-radius: 12px;
-            padding: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
-            transition: transform 0.3s ease;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.04);
+            transition: all 0.2s ease;
         }
 
         .card:hover {
-            transform: translateY(-3px);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
         }
 
         .card h2 {
             color: #667eea;
-            margin-bottom: 12px;
-            font-size: 1.1em;
-            border-bottom: 2px solid #667eea;
-            padding-bottom: 8px;
+            margin-bottom: 14px;
+            font-size: 1.15em;
+            font-weight: 600;
+            border-bottom: 2px solid #e8eaf6;
+            padding-bottom: 10px;
+            letter-spacing: -0.3px;
         }
 
         .party-row {
@@ -301,26 +314,26 @@
 
         .controls {
             background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.04);
             display: flex;
             flex-wrap: wrap;
-            gap: 30px;
+            gap: 20px;
             align-items: start;
         }
 
         .controls-right {
             flex: 1;
-            min-width: 300px;
+            min-width: min(100%, 280px);
         }
 
         .controls-left {
-            flex: 0 0 350px;
-            min-width: 280px;
+            flex: 1 1 100%;
+            min-width: min(100%, 260px);
             display: flex;
             flex-direction: column;
-            gap: 18px;
+            gap: 14px;
         }
 
         .controls h2 {
@@ -361,49 +374,59 @@
 
         input[type="range"] {
             width: 100%;
-            height: 8px;
-            border-radius: 5px;
-            background: #ddd;
+            height: 10px;
+            border-radius: 8px;
+            background: linear-gradient(90deg, #e8eaf6 0%, #667eea 100%);
             outline: none;
             appearance: none;
             -webkit-appearance: none;
             cursor: pointer;
-            touch-action: none; /* Prevent scroll while sliding */
+            touch-action: none;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
         }
 
         input[type="range"]::-webkit-slider-thumb {
             appearance: none;
             -webkit-appearance: none;
-            width: 20px;
-            height: 20px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
-            background: #667eea;
+            background: linear-gradient(135deg, #ffd93d 0%, #f9ca24 100%);
             cursor: pointer;
-            transition: background 0.3s ease, transform 0.2s ease;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: all 0.2s ease;
+            box-shadow: 0 3px 8px rgba(249, 202, 36, 0.4), 0 0 0 3px rgba(255, 217, 61, 0.2);
+            border: 3px solid white;
         }
 
-        input[type="range"]::-webkit-slider-thumb:hover,
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+            box-shadow: 0 4px 12px rgba(249, 202, 36, 0.5), 0 0 0 4px rgba(255, 217, 61, 0.3);
+        }
+
         input[type="range"]::-webkit-slider-thumb:active {
-            background: #764ba2;
-            transform: scale(1.2);
+            transform: scale(1.05);
+            box-shadow: 0 2px 6px rgba(249, 202, 36, 0.6), 0 0 0 5px rgba(255, 217, 61, 0.4);
         }
 
         input[type="range"]::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
-            background: #667eea;
+            background: linear-gradient(135deg, #ffd93d 0%, #f9ca24 100%);
             cursor: pointer;
-            border: none;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            transition: background 0.3s ease, transform 0.2s ease;
+            border: 3px solid white;
+            box-shadow: 0 3px 8px rgba(249, 202, 36, 0.4), 0 0 0 3px rgba(255, 217, 61, 0.2);
+            transition: all 0.2s ease;
         }
 
-        input[type="range"]::-moz-range-thumb:hover,
+        input[type="range"]::-moz-range-thumb:hover {
+            transform: scale(1.15);
+            box-shadow: 0 4px 12px rgba(249, 202, 36, 0.5), 0 0 0 4px rgba(255, 217, 61, 0.3);
+        }
+
         input[type="range"]::-moz-range-thumb:active {
-            background: #764ba2;
-            transform: scale(1.2);
+            transform: scale(1.05);
+            box-shadow: 0 2px 6px rgba(249, 202, 36, 0.6), 0 0 0 5px rgba(255, 217, 61, 0.4);
         }
 
         .change-indicator {
@@ -492,43 +515,43 @@
 
         @media (max-width: 768px) {
             body {
-                padding: 5px;
+                padding: 6px;
             }
 
             header {
-                padding: 10px 5px;
-                margin-bottom: 10px;
+                padding: 10px 8px;
+                margin-bottom: 12px;
             }
 
             header h1 {
-                font-size: 1.3em;
+                font-size: 1.25em;
+                line-height: 1.3;
             }
 
             header h1 small {
-                display: block;
-                margin-left: 0;
-                margin-top: 5px;
-                font-size: 0.6em;
+                font-size: 0.5em;
+                margin-top: 4px;
             }
 
             .container {
                 padding: 0;
+                width: 100%;
             }
 
             .grid {
                 grid-template-columns: 1fr;
-                gap: 15px;
-                margin-bottom: 15px;
+                gap: 10px;
+                margin-bottom: 12px;
             }
 
             .scenario-grid {
                 grid-template-columns: 1fr;
-                gap: 12px;
+                gap: 10px;
             }
 
             .card {
-                padding: 12px;
-                border-radius: 10px;
+                padding: 14px;
+                border-radius: 14px;
             }
 
             .card h2 {
@@ -555,27 +578,33 @@
             }
 
             .controls {
-                padding: 15px;
-                grid-template-columns: 1fr;
-                gap: 15px;
-            }
-
-            .controls h2 {
-                font-size: 1.1em;
-                margin-bottom: 8px;
-            }
-
-            .controls p {
-                font-size: 0.9em;
-                margin-bottom: 12px;
-            }
-
-            .controls-left {
-                margin-bottom: 15px;
+                padding: 14px;
+                gap: 16px;
+                flex-direction: column;
             }
 
             .controls-right {
-                gap: 12px;
+                order: 1;
+                width: 100%;
+                min-width: unset;
+            }
+
+            .controls-left {
+                order: 2;
+                width: 100%;
+                min-width: unset;
+            }
+
+            .controls h2 {
+                font-size: 1.05em;
+                margin-bottom: 8px;
+                font-weight: 600;
+            }
+
+            .controls p {
+                font-size: 0.88em;
+                margin-bottom: 10px;
+                line-height: 1.4;
             }
 
             .control-label {
@@ -641,23 +670,42 @@
         /* Extra small mobile devices */
         @media (max-width: 480px) {
             body {
-                padding: 3px;
+                padding: 4px;
+            }
+
+            header {
+                padding: 8px 4px;
             }
 
             header h1 {
-                font-size: 1.1em;
+                font-size: 1.15em;
+                line-height: 1.2;
+            }
+
+            header h1 small {
+                font-size: 0.48em;
             }
 
             .card {
-                padding: 10px;
+                padding: 12px;
+                border-radius: 12px;
+            }
+
+            .card h2 {
+                font-size: 0.95em;
             }
 
             .controls {
                 padding: 12px;
+                gap: 14px;
             }
 
             .controls h2 {
-                font-size: 1em;
+                font-size: 0.95em;
+            }
+
+            .controls p {
+                font-size: 0.82em;
             }
 
             .party-name {
@@ -669,9 +717,28 @@
             }
 
             .party-logo {
-                width: 24px;
-                height: 24px;
-                margin-right: 5px;
+                width: 26px;
+                height: 26px;
+                margin-right: 6px;
+            }
+
+            .add-prediction-box {
+                padding: 12px;
+            }
+
+            .add-prediction-box h3 {
+                font-size: 0.92em;
+            }
+
+            .prediction-input-group input {
+                padding: 12px;
+                font-size: 0.9em;
+            }
+
+            .add-prediction-btn {
+                padding: 13px 20px;
+                font-size: 0.9em;
+                min-height: 46px;
             }
         }
     </style>
@@ -679,7 +746,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>🗳️ Bihar Election 2025 Prediction Calculator <small>(JSP Impact Analysis)</small></h1>
+            <h1>🗳️ Bihar Election 2025<br><span style="font-size: 0.85em; font-weight: 600; color: #ffd93d;">Jan Suraaj Impact Calculator</span></h1>
         </header>
 
         <!-- First Layer: 2020 and 2025 Results Side by Side -->
@@ -780,31 +847,43 @@
         <div class="controls" style="margin-bottom: 20px;">
             <!-- Right Column: Sliders (shown first on mobile) -->
             <div class="controls-right" style="order: 1;">
-                <div style="margin-bottom: 15px;">
-                    <h2>⚙️ Adjust JSP Vote Transfer</h2>
-                    <p>Set what percentage of votes JSP will take from each party</p>
+                <div style="margin-bottom: 16px; text-align: center; background: linear-gradient(135deg, #f0f4ff 0%, #e8eaf6 100%); padding: 14px; border-radius: 12px; border: 2px solid rgba(102, 126, 234, 0.2);">
+                    <h2 style="margin-bottom: 8px; font-size: 1.2em;">🎯 Predict Jan Suraaj's Impact</h2>
+                    <p style="margin: 0; font-size: 0.9em; color: #555;">Slide to set how much vote % Jan Suraaj takes from each party</p>
                 </div>
                 
                 <div class="control-group">
                     <div class="control-label">
-                        <span>Votes from NDA → JSP</span>
-                        <span class="control-value"><span id="nda-percent">0</span>%</span>
+                        <span style="display: flex; align-items: center; gap: 6px;">
+                            <span style="color: #FF9933; font-weight: 600;">NDA</span>
+                            <span style="color: #999; font-size: 0.9em;">→</span>
+                            <span style="color: #ffd93d; font-weight: 600;">JSP</span>
+                        </span>
+                        <span class="control-value" style="background: #fff3cd; padding: 4px 10px; border-radius: 6px; font-weight: 700; color: #856404;"><span id="nda-percent">0</span>%</span>
                     </div>
                     <input type="range" id="nda-slider" min="0" max="100" value="0" step="1">
                 </div>
 
                 <div class="control-group">
                     <div class="control-label">
-                        <span>Votes from MGB → JSP</span>
-                        <span class="control-value"><span id="mgb-percent">0</span>%</span>
+                        <span style="display: flex; align-items: center; gap: 6px;">
+                            <span style="color: #138808; font-weight: 600;">MGB</span>
+                            <span style="color: #999; font-size: 0.9em;">→</span>
+                            <span style="color: #ffd93d; font-weight: 600;">JSP</span>
+                        </span>
+                        <span class="control-value" style="background: #fff3cd; padding: 4px 10px; border-radius: 6px; font-weight: 700; color: #856404;"><span id="mgb-percent">0</span>%</span>
                     </div>
                     <input type="range" id="mgb-slider" min="0" max="100" value="0" step="1">
                 </div>
 
                 <div class="control-group">
                     <div class="control-label">
-                        <span>Votes from Others → JSP</span>
-                        <span class="control-value"><span id="others-percent">0</span>%</span>
+                        <span style="display: flex; align-items: center; gap: 6px;">
+                            <span style="color: #999999; font-weight: 600;">Others</span>
+                            <span style="color: #999; font-size: 0.9em;">→</span>
+                            <span style="color: #ffd93d; font-weight: 600;">JSP</span>
+                        </span>
+                        <span class="control-value" style="background: #fff3cd; padding: 4px 10px; border-radius: 6px; font-weight: 700; color: #856404;"><span id="others-percent">0</span>%</span>
                     </div>
                     <input type="range" id="others-slider" min="0" max="100" value="0" step="1">
                 </div>
@@ -1266,22 +1345,25 @@
                 const winnerBadge = '<span style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 3px 8px; border-radius: 8px; font-size: 0.75em; margin-left: 6px; font-weight: bold;">🏆 LEADING</span>';
 
                 avgContent.innerHTML = `
-                    <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 15px;">
-                        <div style="font-size: 0.9em; color: #667eea; font-weight: 600; margin-bottom: 8px; text-align: center;">
-                            Average JSP Vote Transfer:
+                    <div style="background: linear-gradient(135deg, #fff3cd 0%, #fff8e1 100%); padding: 14px; border-radius: 10px; margin-bottom: 15px; border: 2px solid #ffd93d;">
+                        <div style="font-size: 0.85em; color: #856404; font-weight: 600; margin-bottom: 10px; text-align: center;">
+                            📊 Average Vote Transfer to Jan Suraaj:
                         </div>
-                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; text-align: center;">
-                            <div>
-                                <div style="font-size: 0.8em; color: #666;">NDA</div>
-                                <div style="font-size: 1.3em; font-weight: bold; color: #FF9933;">${avgNDA}%</div>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center;">
+                            <div style="background: white; padding: 8px; border-radius: 8px; border: 2px solid #FF9933;">
+                                <div style="font-size: 0.75em; color: #666; margin-bottom: 2px;">From NDA</div>
+                                <div style="font-size: 1.4em; font-weight: bold; color: #FF9933;">−${avgNDA}%</div>
+                                <div style="font-size: 0.7em; color: #999; margin-top: 2px;">→ JSP</div>
                             </div>
-                            <div>
-                                <div style="font-size: 0.8em; color: #666;">MGB</div>
-                                <div style="font-size: 1.3em; font-weight: bold; color: #138808;">${avgMGB}%</div>
+                            <div style="background: white; padding: 8px; border-radius: 8px; border: 2px solid #138808;">
+                                <div style="font-size: 0.75em; color: #666; margin-bottom: 2px;">From MGB</div>
+                                <div style="font-size: 1.4em; font-weight: bold; color: #138808;">−${avgMGB}%</div>
+                                <div style="font-size: 0.7em; color: #999; margin-top: 2px;">→ JSP</div>
                             </div>
-                            <div>
-                                <div style="font-size: 0.8em; color: #666;">Others</div>
-                                <div style="font-size: 1.3em; font-weight: bold; color: #999999;">${avgOthers}%</div>
+                            <div style="background: white; padding: 8px; border-radius: 8px; border: 2px solid #999999;">
+                                <div style="font-size: 0.75em; color: #666; margin-bottom: 2px;">From Others</div>
+                                <div style="font-size: 1.4em; font-weight: bold; color: #999999;">−${avgOthers}%</div>
+                                <div style="font-size: 0.7em; color: #999; margin-top: 2px;">→ JSP</div>
                             </div>
                         </div>
                     </div>
@@ -1296,31 +1378,49 @@
                         </div>
                     </div>
 
-                    <div style="background: #fff; padding: 15px; border: 2px solid #e0e0e0; border-radius: 8px;">
-                        <div style="font-size: 0.9em; color: #667eea; font-weight: 600; margin-bottom: 12px; text-align: center;">
-                            Projected 2025 Vote Share:
+                    <div style="background: #fff; padding: 16px; border: 2px solid #e0e0e0; border-radius: 10px;">
+                        <div style="font-size: 0.95em; color: #667eea; font-weight: 600; margin-bottom: 14px; text-align: center;">
+                            🗳️ Projected 2025 Vote Share:
                         </div>
-                        <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <div style="display: flex; justify-content: space-between; padding: 8px; background: #f8f9fa; border-radius: 6px; ${winner.name === 'NDA' ? 'border: 2px solid #f093fb;' : ''}">
-                                <span style="font-weight: 600;">NDA</span>
-                                <span style="${ndaStyle} font-size: 1.1em;">
-                                    ${newNDA.toFixed(2)}%
-                                    ${winner.name === 'NDA' ? winnerBadge : ''}
-                                </span>
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
+                            <!-- NDA -->
+                            <div style="padding: 10px; background: ${winner.name === 'NDA' ? 'linear-gradient(135deg, #ffe8e8 0%, #fff0f0 100%)' : '#fafafa'}; border-radius: 8px; ${winner.name === 'NDA' ? 'border: 2px solid #f093fb; box-shadow: 0 2px 8px rgba(240, 147, 251, 0.3);' : 'border: 1px solid #eee;'}">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                    <span style="font-weight: 700; color: #FF9933; font-size: 1.05em;">NDA</span>
+                                    <span style="font-weight: 700; color: #FF9933; font-size: 1.15em;">
+                                        ${newNDA.toFixed(2)}%
+                                        ${winner.name === 'NDA' ? winnerBadge : ''}
+                                    </span>
+                                </div>
+                                <div style="background: #e0e0e0; height: 12px; border-radius: 6px; overflow: hidden;">
+                                    <div style="background: linear-gradient(90deg, #FF9933 0%, #ff7700 100%); height: 100%; width: ${newNDA}%; transition: width 0.5s ease; box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);"></div>
+                                </div>
                             </div>
-                            <div style="display: flex; justify-content: space-between; padding: 8px; background: #f8f9fa; border-radius: 6px; ${winner.name === 'MGB' ? 'border: 2px solid #f093fb;' : ''}">
-                                <span style="font-weight: 600;">MGB</span>
-                                <span style="${mgbStyle} font-size: 1.1em;">
-                                    ${newMGB.toFixed(2)}%
-                                    ${winner.name === 'MGB' ? winnerBadge : ''}
-                                </span>
+                            <!-- MGB -->
+                            <div style="padding: 10px; background: ${winner.name === 'MGB' ? 'linear-gradient(135deg, #e8f5e9 0%, #f0f8f0 100%)' : '#fafafa'}; border-radius: 8px; ${winner.name === 'MGB' ? 'border: 2px solid #f093fb; box-shadow: 0 2px 8px rgba(240, 147, 251, 0.3);' : 'border: 1px solid #eee;'}">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                    <span style="font-weight: 700; color: #138808; font-size: 1.05em;">MGB</span>
+                                    <span style="font-weight: 700; color: #138808; font-size: 1.15em;">
+                                        ${newMGB.toFixed(2)}%
+                                        ${winner.name === 'MGB' ? winnerBadge : ''}
+                                    </span>
+                                </div>
+                                <div style="background: #e0e0e0; height: 12px; border-radius: 6px; overflow: hidden;">
+                                    <div style="background: linear-gradient(90deg, #138808 0%, #0d6006 100%); height: 100%; width: ${newMGB}%; transition: width 0.5s ease; box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);"></div>
+                                </div>
                             </div>
-                            <div style="display: flex; justify-content: space-between; padding: 8px; background: #f8f9fa; border-radius: 6px; ${winner.name === 'Others' ? 'border: 2px solid #f093fb;' : ''}">
-                                <span style="font-weight: 600;">Others</span>
-                                <span style="${othersStyle} font-size: 1.1em;">
-                                    ${newOthers.toFixed(2)}%
-                                    ${winner.name === 'Others' ? winnerBadge : ''}
-                                </span>
+                            <!-- Others -->
+                            <div style="padding: 10px; background: ${winner.name === 'Others' ? 'linear-gradient(135deg, #f5f5f5 0%, #fafafa 100%)' : '#fafafa'}; border-radius: 8px; ${winner.name === 'Others' ? 'border: 2px solid #f093fb; box-shadow: 0 2px 8px rgba(240, 147, 251, 0.3);' : 'border: 1px solid #eee;'}">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                    <span style="font-weight: 700; color: #757575; font-size: 1.05em;">Others</span>
+                                    <span style="font-weight: 700; color: #757575; font-size: 1.15em;">
+                                        ${newOthers.toFixed(2)}%
+                                        ${winner.name === 'Others' ? winnerBadge : ''}
+                                    </span>
+                                </div>
+                                <div style="background: #e0e0e0; height: 12px; border-radius: 6px; overflow: hidden;">
+                                    <div style="background: linear-gradient(90deg, #999999 0%, #757575 100%); height: 100%; width: ${newOthers}%; transition: width 0.5s ease; box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1379,22 +1479,25 @@
                         👤 ${prediction.name}
                     </h3>
                     
-                    <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 15px;">
-                        <div style="font-size: 0.9em; color: #667eea; font-weight: 600; margin-bottom: 8px; text-align: center;">
-                            JSP takes votes from:
+                    <div style="background: linear-gradient(135deg, #fff3cd 0%, #fff8e1 100%); padding: 14px; border-radius: 10px; margin-bottom: 15px; border: 2px solid #ffd93d;">
+                        <div style="font-size: 0.85em; color: #856404; font-weight: 600; margin-bottom: 10px; text-align: center;">
+                            📊 Vote Transfer to Jan Suraaj:
                         </div>
-                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; text-align: center;">
-                            <div>
-                                <div style="font-size: 0.8em; color: #666;">NDA</div>
-                                <div style="font-size: 1.3em; font-weight: bold; color: #FF9933;">${prediction.nda}%</div>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center;">
+                            <div style="background: white; padding: 8px; border-radius: 8px; border: 2px solid #FF9933;">
+                                <div style="font-size: 0.75em; color: #666; margin-bottom: 2px;">From NDA</div>
+                                <div style="font-size: 1.4em; font-weight: bold; color: #FF9933;">−${parseFloat(prediction.nda)}%</div>
+                                <div style="font-size: 0.7em; color: #999; margin-top: 2px;">→ JSP</div>
                             </div>
-                            <div>
-                                <div style="font-size: 0.8em; color: #666;">MGB</div>
-                                <div style="font-size: 1.3em; font-weight: bold; color: #138808;">${prediction.mgb}%</div>
+                            <div style="background: white; padding: 8px; border-radius: 8px; border: 2px solid #138808;">
+                                <div style="font-size: 0.75em; color: #666; margin-bottom: 2px;">From MGB</div>
+                                <div style="font-size: 1.4em; font-weight: bold; color: #138808;">−${parseFloat(prediction.mgb)}%</div>
+                                <div style="font-size: 0.7em; color: #999; margin-top: 2px;">→ JSP</div>
                             </div>
-                            <div>
-                                <div style="font-size: 0.8em; color: #666;">Others</div>
-                                <div style="font-size: 1.3em; font-weight: bold; color: #999999;">${prediction.others}%</div>
+                            <div style="background: white; padding: 8px; border-radius: 8px; border: 2px solid #999999;">
+                                <div style="font-size: 0.75em; color: #666; margin-bottom: 2px;">From Others</div>
+                                <div style="font-size: 1.4em; font-weight: bold; color: #999999;">−${parseFloat(prediction.others)}%</div>
+                                <div style="font-size: 0.7em; color: #999; margin-top: 2px;">→ JSP</div>
                             </div>
                         </div>
                     </div>
@@ -1409,31 +1512,49 @@
                         </div>
                     </div>
 
-                    <div style="background: #fff; padding: 15px; border: 2px solid #e0e0e0; border-radius: 8px;">
-                        <div style="font-size: 0.9em; color: #667eea; font-weight: 600; margin-bottom: 12px; text-align: center;">
-                            Final Vote Share (2025):
+                    <div style="background: #fff; padding: 16px; border: 2px solid #e0e0e0; border-radius: 10px;">
+                        <div style="font-size: 0.95em; color: #667eea; font-weight: 600; margin-bottom: 14px; text-align: center;">
+                            🗳️ Final Vote Share (2025):
                         </div>
-                        <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <div style="display: flex; justify-content: space-between; padding: 8px; background: #f8f9fa; border-radius: 6px; ${winner.name === 'NDA' ? 'border: 2px solid #f093fb;' : ''}">
-                                <span style="font-weight: 600;">NDA</span>
-                                <span style="${ndaStyle} font-size: 1.1em;">
-                                    ${newNDA.toFixed(2)}%
-                                    ${winner.name === 'NDA' ? winnerBadge : ''}
-                                </span>
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
+                            <!-- NDA -->
+                            <div style="padding: 10px; background: ${winner.name === 'NDA' ? 'linear-gradient(135deg, #ffe8e8 0%, #fff0f0 100%)' : '#fafafa'}; border-radius: 8px; ${winner.name === 'NDA' ? 'border: 2px solid #f093fb; box-shadow: 0 2px 8px rgba(240, 147, 251, 0.3);' : 'border: 1px solid #eee;'}">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                    <span style="font-weight: 700; color: #FF9933; font-size: 1.05em;">NDA</span>
+                                    <span style="font-weight: 700; color: #FF9933; font-size: 1.15em;">
+                                        ${newNDA.toFixed(2)}%
+                                        ${winner.name === 'NDA' ? winnerBadge : ''}
+                                    </span>
+                                </div>
+                                <div style="background: #e0e0e0; height: 12px; border-radius: 6px; overflow: hidden;">
+                                    <div style="background: linear-gradient(90deg, #FF9933 0%, #ff7700 100%); height: 100%; width: ${newNDA}%; transition: width 0.5s ease; box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);"></div>
+                                </div>
                             </div>
-                            <div style="display: flex; justify-content: space-between; padding: 8px; background: #f8f9fa; border-radius: 6px; ${winner.name === 'MGB' ? 'border: 2px solid #f093fb;' : ''}">
-                                <span style="font-weight: 600;">MGB</span>
-                                <span style="${mgbStyle} font-size: 1.1em;">
-                                    ${newMGB.toFixed(2)}%
-                                    ${winner.name === 'MGB' ? winnerBadge : ''}
-                                </span>
+                            <!-- MGB -->
+                            <div style="padding: 10px; background: ${winner.name === 'MGB' ? 'linear-gradient(135deg, #e8f5e9 0%, #f0f8f0 100%)' : '#fafafa'}; border-radius: 8px; ${winner.name === 'MGB' ? 'border: 2px solid #f093fb; box-shadow: 0 2px 8px rgba(240, 147, 251, 0.3);' : 'border: 1px solid #eee;'}">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                    <span style="font-weight: 700; color: #138808; font-size: 1.05em;">MGB</span>
+                                    <span style="font-weight: 700; color: #138808; font-size: 1.15em;">
+                                        ${newMGB.toFixed(2)}%
+                                        ${winner.name === 'MGB' ? winnerBadge : ''}
+                                    </span>
+                                </div>
+                                <div style="background: #e0e0e0; height: 12px; border-radius: 6px; overflow: hidden;">
+                                    <div style="background: linear-gradient(90deg, #138808 0%, #0d6006 100%); height: 100%; width: ${newMGB}%; transition: width 0.5s ease; box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);"></div>
+                                </div>
                             </div>
-                            <div style="display: flex; justify-content: space-between; padding: 8px; background: #f8f9fa; border-radius: 6px; ${winner.name === 'Others' ? 'border: 2px solid #f093fb;' : ''}">
-                                <span style="font-weight: 600;">Others</span>
-                                <span style="${othersStyle} font-size: 1.1em;">
-                                    ${newOthers.toFixed(2)}%
-                                    ${winner.name === 'Others' ? winnerBadge : ''}
-                                </span>
+                            <!-- Others -->
+                            <div style="padding: 10px; background: ${winner.name === 'Others' ? 'linear-gradient(135deg, #f5f5f5 0%, #fafafa 100%)' : '#fafafa'}; border-radius: 8px; ${winner.name === 'Others' ? 'border: 2px solid #f093fb; box-shadow: 0 2px 8px rgba(240, 147, 251, 0.3);' : 'border: 1px solid #eee;'}">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                    <span style="font-weight: 700; color: #757575; font-size: 1.05em;">Others</span>
+                                    <span style="font-weight: 700; color: #757575; font-size: 1.15em;">
+                                        ${newOthers.toFixed(2)}%
+                                        ${winner.name === 'Others' ? winnerBadge : ''}
+                                    </span>
+                                </div>
+                                <div style="background: #e0e0e0; height: 12px; border-radius: 6px; overflow: hidden;">
+                                    <div style="background: linear-gradient(90deg, #999999 0%, #757575 100%); height: 100%; width: ${newOthers}%; transition: width 0.5s ease; box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
